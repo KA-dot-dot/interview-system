@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>面試回饋 — 學生端</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:#2196c9;--teal2:#1a7aaa;--amber:#e07b00;--amber2:#c46b00;
+  --coral:#d94040;--text:#1a2d42;--text2:#3d6080;--text3:#7aa0be;
+  --border:rgba(33,150,201,0.25);--border2:rgba(33,150,201,0.13);
+  --card:rgba(255,255,255,0.9);--bg:#eaf4fb;--bg2:#fff;
+  --header-bg:rgba(255,255,255,0.94);--input-bg:rgba(255,255,255,0.92);
+  --radius:12px;--radius-lg:18px;
+}
+.dark-mode{
+  --teal:#38b2e8;--teal2:#2a9fd4;--amber:#f0960a;--coral:#e85050;
+  --text:#e4f0fb;--text2:#93b8d0;--text3:#5a85a0;
+  --border:rgba(56,178,232,0.25);--border2:rgba(56,178,232,0.12);
+  --card:rgba(26,37,53,0.9);--bg:#111c2b;--bg2:#152033;
+  --header-bg:rgba(17,28,43,0.95);--input-bg:rgba(26,40,60,0.9);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 15% 50%,rgba(33,150,201,0.08) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 15%,rgba(224,123,0,0.05) 0%,transparent 40%);
+  pointer-events:none;z-index:0;}
+.app{position:relative;z-index:1;}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:var(--header-bg);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+.header-logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:var(--amber);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.logo-text{font-family:'Oswald',sans-serif;font-size:17px;font-weight:700;color:var(--amber);letter-spacing:1px;}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.icon-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
+
+/* TABS */
+.tab-bar{display:flex;background:var(--header-bg);border-bottom:1px solid var(--border);
+  position:sticky;top:58px;z-index:99;}
+.tab-item{flex:1;padding:13px 8px;text-align:center;font-size:13px;font-weight:700;
+  color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;}
+.tab-item.active{color:var(--amber);border-bottom-color:var(--amber);}
+
+/* PAGE */
+.page{display:none;padding:16px 14px 100px;}
+.page.active{display:block;}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:16px;backdrop-filter:blur(8px);margin-bottom:14px;}
+.card-title{font-size:12px;font-weight:700;color:var(--teal);letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:12px;}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--input-bg);border:1px solid var(--border2);
+  border-radius:9px;color:var(--text);font-family:'Noto Sans TC',sans-serif;
+  font-size:14px;padding:10px 13px;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal);}
+.field textarea{resize:none;min-height:72px;line-height:1.7;}
+.field input::placeholder,.field textarea::placeholder{color:var(--text3);}
+
+/* SANDWICH */
+.sandwich-section{display:flex;gap:11px;padding:12px;border-radius:11px;
+  border:1px solid var(--border2);margin-bottom:10px;align-items:flex-start;}
+.sandwich-icon{font-size:20px;flex-shrink:0;margin-top:3px;}
+.sandwich-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.sw-textarea{width:100%;background:var(--input-bg);border:1px solid var(--border2);
+  border-radius:8px;color:var(--text);font-family:'Noto Sans TC',sans-serif;
+  font-size:13px;padding:8px 10px;resize:none;outline:none;min-height:64px;line-height:1.7;
+  transition:border-color 0.2s;}
+.sw-textarea:focus{border-color:var(--teal);}
+.sw-textarea::placeholder{color:var(--text3);}
+.section-pos{background:rgba(33,150,201,0.05);border-color:rgba(33,150,201,0.2);}
+.section-pos .sandwich-label{color:var(--teal);}
+.section-imp{background:rgba(217,64,64,0.05);border-color:rgba(217,64,64,0.2);}
+.section-imp .sandwich-label{color:var(--coral);}
+.section-enc{background:rgba(224,123,0,0.05);border-color:rgba(224,123,0,0.2);}
+.section-enc .sandwich-label{color:var(--amber);}
+
+/* FILLER */
+.filler-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:10px 0;}
+.filler-btn{display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 6px;border-radius:10px;border:1px solid rgba(217,64,64,0.25);
+  background:rgba(217,64,64,0.05);cursor:pointer;transition:all 0.18s;
+  user-select:none;-webkit-tap-highlight-color:transparent;active:scale(0.95);}
+.filler-btn:active{transform:scale(0.94);background:rgba(217,64,64,0.15);}
+.filler-word{font-size:13px;font-weight:700;color:var(--coral);}
+.filler-count{font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;color:var(--text);line-height:1;}
+.filler-total{font-size:12px;color:var(--text3);text-align:right;margin-top:4px;}
+.custom-filler-row{display:flex;gap:8px;margin-top:10px;align-items:center;}
+.custom-filler-input{flex:1;min-width:0;background:var(--input-bg);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-family:'Noto Sans TC',sans-serif;
+  font-size:13px;padding:7px 10px;outline:none;transition:border-color 0.2s;}
+.custom-filler-input:focus{border-color:var(--teal);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:10px 20px;border-radius:10px;border:1px solid;font-family:'Noto Sans TC',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+.btn-primary:hover{background:var(--teal2);border-color:var(--teal2);}
+.btn-amber{background:var(--amber);border-color:var(--amber);color:#fff;}
+.btn-amber:hover{background:var(--amber2);}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text2);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.btn-coral{background:transparent;border-color:var(--coral);color:var(--coral);}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:8px;}
+.btn-full{width:100%;justify-content:center;}
+.flex-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* SECTION LABEL */
+.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;
+  color:var(--amber);text-transform:uppercase;margin-bottom:4px;}
+.section-title{font-size:20px;font-weight:900;color:var(--text);margin-bottom:3px;line-height:1.2;}
+.section-sub{font-size:13px;color:var(--text2);margin-bottom:18px;}
+
+/* RESULT BOX */
+.result-box{background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px;font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;
+  font-family:monospace;min-height:80px;margin:10px 0;}
+
+/* LOOKUP CARD */
+.feedback-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:14px;margin-bottom:12px;animation:fadeIn 0.3s ease;}
+.feedback-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.feedback-from{font-size:12px;color:var(--text3);}
+.feedback-round{font-size:11px;background:rgba(33,150,201,0.1);border:1px solid var(--border);
+  color:var(--teal);border-radius:10px;padding:2px 9px;font-weight:700;}
+.feedback-row{display:flex;gap:9px;margin-bottom:8px;align-items:flex-start;}
+.feedback-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.feedback-section-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.feedback-text{font-size:13px;color:var(--text2);line-height:1.6;}
+.filler-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
+.filler-pill{font-size:11px;padding:2px 8px;border-radius:12px;
+  background:rgba(217,64,64,0.1);border:1px solid rgba(217,64,64,0.25);
+  color:var(--coral);font-weight:700;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text3);}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:var(--card);border:1px solid var(--teal);color:var(--teal);
+  padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;
+  transition:transform 0.35s cubic-bezier(.34,1.56,.64,1),opacity 0.35s ease;
+  white-space:nowrap;opacity:0;pointer-events:none;
+  backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(33,150,201,0.2);}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:60px;
+  background:var(--header-bg);border-top:1px solid var(--border);
+  backdrop-filter:blur(12px);z-index:200;display:flex;align-items:stretch;
+  padding-bottom:env(safe-area-inset-bottom,0px);}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:transparent;color:var(--text3);
+  font-family:'Noto Sans TC',sans-serif;font-size:10px;font-weight:500;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:color 0.2s;}
+.bnav-btn .bicon{font-size:21px;line-height:1;}
+.bnav-btn.active{color:var(--amber);}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.3s ease;}
+
+/* STATUS BADGE */
+.status-badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(33,150,201,0.08);border:1px solid var(--teal);
+  border-radius:20px;padding:5px 14px;font-size:12px;color:var(--teal);font-weight:700;margin-bottom:14px;}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border2);margin:14px 0;}
+
+/* INTERVIEWEE BANNER */
+.interviewee-banner{display:flex;align-items:center;gap:10px;
+  background:rgba(224,123,0,0.08);border:1px solid rgba(224,123,0,0.3);
+  border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;}
+.interviewee-banner-icon{font-size:24px;}
+.interviewee-banner-info{flex:1;}
+.interviewee-banner-name{font-size:18px;font-weight:900;color:var(--amber);}
+.interviewee-banner-sub{font-size:12px;color:var(--text2);}
+
+  /* ROOM ENTRY */
+  .room-overlay {
+    position: fixed; inset: 0; background: var(--bg); z-index: 9000;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .room-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 32px 24px; max-width: 380px; width: 100%; text-align: center;
+  }
+  .room-input {
+    width: 100%; background: var(--input-bg); border: 2px solid var(--border);
+    border-radius: 12px; color: var(--text); font-family: 'Oswald', sans-serif;
+    font-size: 32px; font-weight: 700; text-align: center; letter-spacing: 6px;
+    padding: 12px; outline: none; transition: border-color 0.2s; text-transform: uppercase;
+  }
+  .room-input:focus { border-color: var(--amber); }
+  .room-info-bar {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+    background: rgba(33,150,201,0.07); border-bottom: 1px solid var(--border2);
+    font-size: 12px; color: var(--text2);
+  }
+  .room-chip {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--amber);
+    color: #fff; border-radius: 16px; padding: 3px 12px;
+    font-family: 'Oswald', sans-serif; font-weight: 700; letter-spacing: 2px; font-size: 14px;
+  }
+  .firebase-warn-s {
+    background: rgba(217,64,64,0.08); border: 1px solid rgba(217,64,64,0.3);
+    border-radius: 9px; padding: 10px 14px; margin: 12px 0;
+    font-size: 12px; color: var(--coral); line-height: 1.7; text-align: left; display:none;
+  }
+
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <!-- ROOM ENTRY OVERLAY -->
+  <div class="room-overlay" id="room-overlay">
+    <div class="room-box">
+      <div style="font-size:52px;margin-bottom:14px;">📝</div>
+      <h1 style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px;">學生回饋系統</h1>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:22px;line-height:1.7;">輸入老師給的房間碼與你的座號。每個座號同場次只能使用一次。</p>
+      <div class="firebase-warn-s" id="firebase-warn-s" onclick="showStudentFirebaseWizard()" style="cursor:pointer;">⚠️ 尚未設定 Firebase — 點此快速設定 🔧</div>
+      <input type="text" class="room-input" id="room-code-input"
+        placeholder="XXXXXX" maxlength="6"
+        oninput="this.value=this.value.toUpperCase()"
+        onkeydown="if(event.key==='Enter')document.getElementById('seat-code-input').focus()"
+        style="width:100%;box-sizing:border-box;text-align:center;font-size:22px;letter-spacing:6px;margin-bottom:12px;">
+      <input type="text" class="room-input" id="seat-code-input"
+        placeholder="輸入你的座號"
+        onkeydown="if(event.key==='Enter')joinRoom()"
+        style="width:100%;box-sizing:border-box;text-align:center;font-size:18px;margin-bottom:12px;">
+      <button class="btn btn-amber btn-full" onclick="joinRoom()" style="font-size:16px;width:100%;display:block;">加入場次</button>
+    </div>
+  </div>
+
+  <!-- ROOM INFO BAR (shown after joining) -->
+  <div class="room-info-bar" id="room-info-bar" style="display:none;">
+    <span class="room-chip" id="room-chip-code"></span>
+    <span class="room-chip" id="seat-chip-code"></span>
+    <span style="color:var(--text2);">場次已加入</span>
+    <span id="s-db-status" style="font-size:11px;color:var(--text3);"></span>
+    <div style="flex:1;"></div>
+    <button class="btn btn-ghost btn-sm" onclick="leaveRoom()" style="font-size:11px;padding:4px 10px;">切換場次</button>
+  </div>
+
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">📝</div>
+    <div>
+      <div class="logo-text">學生回饋系統</div>
+      <div class="logo-sub">面試模擬回饋賽</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px;">
+    <button class="icon-btn" onclick="toggleTheme()" id="theme-btn" title="深色/淺色">🌙</button>
+  </div>
+</header>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <div class="tab-item active" onclick="showTab('submit')" id="tab-submit">✏️ 填寫回饋</div>
+  <div class="tab-item" onclick="showTab('lookup')" id="tab-lookup">🔍 查看我的回饋</div>
+</div>
+
+<!-- ══ PAGE: SUBMIT ══ -->
+<div class="page active" id="page-submit">
+  <div class="section-label">Step 01</div>
+  <h1 class="section-title">填寫回饋表</h1>
+  <p class="section-sub">第二階段「背對回饋」時填寫，完成後點「提交回饋」。</p>
+
+  <!-- Identity -->
+  <div class="card">
+    <div class="card-title">👤 回饋者資訊</div>
+    <div class="field">
+      <label>我的座號</label>
+      <input type="text" id="reviewer-name" placeholder="加入場次時填寫" readonly>
+    </div>
+    <div class="field">
+      <label>面試者（要回饋誰？）</label>
+      <select id="target-name" onchange="onTargetChange()">
+        <option value="">請選擇面試者…</option>
+      </select>
+    </div>
+    <div id="target-custom-field" class="field" style="display:none;">
+      <label>手動輸入面試者名稱</label>
+      <input type="text" id="target-custom" placeholder="輸入面試者姓名或座號…">
+    </div>
+    <div class="field">
+      <label>第幾輪</label>
+      <select id="round-select">
+        <option value="第1輪">第1輪</option>
+        <option value="第2輪">第2輪</option>
+        <option value="第3輪">第3輪</option>
+        <option value="第4輪">第4輪</option>
+        <option value="第5輪">第5輪</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Filler counter -->
+  <div class="card" style="border-color:rgba(217,64,64,0.3);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div class="card-title" style="margin-bottom:0;">🔢 贅詞計數器</div>
+      <button class="btn btn-ghost btn-sm" onclick="resetFillers()">重置</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">聽到一次就按一次，數字自動累積</div>
+    <div class="filler-grid" id="filler-grid"></div>
+    <div class="filler-total" id="filler-total">總計：0 次</div>
+    <div class="custom-filler-row">
+      <input type="text" class="custom-filler-input" id="custom-filler-input" placeholder="新增贅詞…" maxlength="10">
+      <button class="btn btn-ghost btn-sm" onclick="addCustomFiller()">＋ 新增</button>
+    </div>
+  </div>
+
+  <!-- Sandwich feedback -->
+  <div class="card">
+    <div class="card-title">🥪 三明治回饋</div>
+    <div class="sandwich-section section-pos">
+      <span class="sandwich-icon">👍</span>
+      <div style="flex:1">
+        <div class="sandwich-label">優點（一個具體亮點）</div>
+        <textarea class="sw-textarea" id="fb-pos" placeholder="例如：眼神接觸很自然，讓人感覺有自信…"></textarea>
+      </div>
+    </div>
+    <div class="sandwich-section section-imp">
+      <span class="sandwich-icon">🎯</span>
+      <div style="flex:1">
+        <div class="sandwich-label">具體改進點（可立即改善的行為）</div>
+        <textarea class="sw-textarea" id="fb-imp" placeholder="例如：語速可以放慢，「然後」出現了很多次…"></textarea>
+      </div>
+    </div>
+    <div class="sandwich-section section-enc">
+      <span class="sandwich-icon">💪</span>
+      <div style="flex:1">
+        <div class="sandwich-label">鼓勵語（正向語氣收尾）</div>
+        <textarea class="sw-textarea" id="fb-enc" placeholder="例如：整體表達很清楚，繼續練習一定會更好！…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit area -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="btn btn-amber btn-full" onclick="submitFeedback()" style="flex:2;min-width:200px;">
+      ✅ 提交回饋
+    </button>
+    <button class="btn btn-ghost" onclick="clearForm()">清除</button>
+  </div>
+
+  <!-- Submitted result -->
+  <div id="submitted-card" style="display:none;margin-top:14px;" class="card">
+    <div class="card-title">📋 已提交的回饋（可複製）</div>
+    <div class="result-box" id="submitted-result-box"></div>
+    <div class="flex-row">
+      <button class="btn btn-primary btn-sm" onclick="copyResult()">📋 複製</button>
+      <button class="btn btn-amber btn-sm" onclick="shareResult()">📤 傳送</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE: LOOKUP ══ -->
+<div class="page" id="page-lookup">
+  <div class="section-label">查看回饋</div>
+  <h1 class="section-title">查看我的回饋</h1>
+  <p class="section-sub">只會顯示傳給你座號的回饋，不能查詢其他同學。</p>
+
+  <div class="card">
+    <div class="field">
+      <label>🔍 我的座號</label>
+      <input type="text" id="lookup-name" readonly
+        style="font-size:16px;font-weight:700;padding:12px 14px;">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLookup()">查看我的回饋</button>
+  </div>
+
+  <div id="lookup-results">
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">加入場次後即可查看</div>
+      <div style="font-size:13px;">面試結束後，主考官填寫給你的回饋會在這裡顯示</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-btn active" id="bnav-submit" onclick="showTab('submit')">
+    <span class="bicon">✏️</span>填寫回饋
+  </button>
+  <button class="bnav-btn" id="bnav-lookup" onclick="showTab('lookup')">
+    <span class="bicon">🔍</span>查看回饋
+  </button>
+</nav>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// ★ FIREBASE 設定 — 由 UI 設定精靈自動管理（存入 localStorage）
+// ════════════════════════════════════════════════════════════════════
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBVyKP-j7_CP3SRf8h3TYhZXLQuTdx0YQ0",
+  authDomain: "project-4198352826191193750.firebaseapp.com",
+  databaseURL: "https://project-4198352826191193750-default-rtdb.firebaseio.com",
+  projectId: "project-4198352826191193750",
+  storageBucket: "project-4198352826191193750.firebasestorage.app",
+  messagingSenderId: "221540560321",
+  appId: "1:221540560321:web:8239153fe386e089b29340",
+  measurementId: "G-MG6RLJQHZT"
+};
+
+function _loadSavedFirebaseConfig() {
+  // Check URL param first (teacher can embed config in QR link)
+  try {
+    const param = new URLSearchParams(window.location.search).get('fc');
+    if (param) {
+      const cfg = JSON.parse(atob(param));
+      localStorage.setItem('firebase_config_v1', JSON.stringify(cfg));
+      return cfg;
+    }
+  } catch(e) {}
+  // Fall back to localStorage
+  try {
+    const raw = localStorage.getItem('firebase_config_v1');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return DEFAULT_FIREBASE_CONFIG;
+}
+const FIREBASE_CONFIG = _loadSavedFirebaseConfig();
+
+// ─── Firebase Init ────────────────────────────────────────────────
+let db = null;
+let currentRoom = null;
+let currentSeat = null;
+let deviceId = localStorage.getItem('ifs_device_id') || '';
+const navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+const isPageReload = navEntry ? navEntry.type === 'reload' : performance.navigation?.type === 1;
+let tabId = isPageReload ? (sessionStorage.getItem('ifs_tab_id') || '') : '';
+const sessionId = Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+let currentSeatRef = null;
+let disconnectActivityRef = null;
+let seatHeartbeat = null;
+let groupsListener = null;
+let feedbacksListener = null;
+const DISCONNECTED_REJOIN_DELAY = 30000;
+const STALE_LOCK_REJOIN_DELAY = 45000;
+
+if (!deviceId) {
+  deviceId = Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+  localStorage.setItem('ifs_device_id', deviceId);
+}
+
+if (!tabId) {
+  tabId = Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+  sessionStorage.setItem('ifs_tab_id', tabId);
+}
+
+function initFirebase() {
+  if (!FIREBASE_CONFIG) {
+    document.getElementById('firebase-warn-s').style.display = '';
+    return;
+  }
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    // Auto-join if URL has ?room=
+    const urlRoom = new URLSearchParams(window.location.search).get('room');
+    if (urlRoom) {
+      document.getElementById('room-code-input').value = urlRoom.toUpperCase();
+      const savedSeat = localStorage.getItem('ifs_my_seat_' + urlRoom.toUpperCase());
+      if (savedSeat) document.getElementById('seat-code-input').value = savedSeat;
+      document.getElementById('seat-code-input').focus();
+    }
+  } catch(e) {
+    console.error('Firebase init error', e);
+    document.getElementById('firebase-warn-s').style.display = '';
+  }
+}
+
+// ─── ROOM ────────────────────────────────────────────────────────
+function normalizeSeat(value) {
+  return (value || '').trim().replace(/\s+/g, '').replace(/號$/i, '');
+}
+
+function seatKey(value) {
+  return normalizeSeat(value).replace(/[.#$/\[\]]/g, '_');
+}
+
+async function claimSeat(code, seat) {
+  if (!db) return false;
+  const key = seatKey(seat);
+  const ref = db.ref('rooms/' + code + '/students/' + key);
+  const now = Date.now();
+  const normalizedSeat = normalizeSeat(seat);
+  const result = await ref.transaction((current) => {
+    if (current && current.tabId !== tabId) {
+      const lastSeen = Number(current.lastSeen || current.joinedAt || 0);
+      if (current.disconnected) {
+        // 對方已斷線（按叉、切換場次）→ 任何裝置都可立即取用，不需等待
+      } else if (current.deviceId === deviceId) {
+        // 同裝置但仍顯示連線中 → 擋住（避免同裝置多 tab 重複進入）
+        return;
+      } else {
+        // 不同裝置且仍在線 → 等 stale lock 超時才放行
+        const canRejoinStaleLock = lastSeen && now - lastSeen >= STALE_LOCK_REJOIN_DELAY;
+        if (!canRejoinStaleLock) return;
+      }
+    }
+    return {
+      seat: normalizedSeat,
+      deviceId,
+      tabId,
+      sessionId,
+      joinedAt: current && current.tabId === tabId ? (current.joinedAt || now) : now,
+      lastSeen: now,
+      connected: true,
+      disconnected: false,
+      disconnectedAt: null
+    };
+  });
+  if (!result.committed) return false;
+
+  const snap = await ref.once('value');
+  const current = snap.val();
+  if (!current || current.tabId !== tabId) return false;
+
+  currentSeatRef = ref;
+  ref.onDisconnect().update({
+    connected: false,
+    disconnected: true,
+    disconnectedAt: firebase.database.ServerValue.TIMESTAMP,
+    lastSeen: firebase.database.ServerValue.TIMESTAMP
+  });
+  startSeatHeartbeat();
+  return true;
+}
+
+async function releaseSeat() {
+  if (!db || !currentRoom || !currentSeat) return false;
+  stopSeatHeartbeat();
+  const ref = currentSeatRef || db.ref('rooms/' + currentRoom + '/students/' + seatKey(currentSeat));
+  let released = false;
+  try {
+    if (currentSeatRef) await currentSeatRef.onDisconnect().cancel();
+    const snap = await ref.once('value');
+    const current = snap.val();
+    if (current && (current.tabId === tabId || current.sessionId === sessionId)) {
+      await ref.remove();
+      released = true;
+    }
+  } catch(e) {}
+  currentSeatRef = null;
+  return released;
+}
+
+function startSeatHeartbeat() {
+  stopSeatHeartbeat();
+  if (!currentSeatRef) return;
+  currentSeatRef.update({ lastSeen: Date.now(), connected: true, disconnected: false, disconnectedAt: null }).catch(() => {});
+  seatHeartbeat = setInterval(() => {
+    currentSeatRef.update({ lastSeen: Date.now(), connected: true, disconnected: false, disconnectedAt: null }).catch(() => {});
+  }, 5000);
+}
+
+function stopSeatHeartbeat() {
+  if (seatHeartbeat) {
+    clearInterval(seatHeartbeat);
+    seatHeartbeat = null;
+  }
+}
+
+function pushActivity(type, seat) {
+  if (!db || !currentRoom) return Promise.resolve();
+  return db.ref('rooms/' + currentRoom + '/activity').push({
+    type,
+    seat,
+    sessionId,
+    tabId,
+    timestamp: Date.now(),
+    time: new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit', second:'2-digit'})
+  });
+}
+
+function setupDisconnectActivity(seat) {
+  if (!db || !currentRoom || !seat) return;
+  disconnectActivityRef = db.ref('rooms/' + currentRoom + '/activity').push();
+  disconnectActivityRef.onDisconnect().set({
+    type: 'leave',
+    seat,
+    sessionId,
+    tabId,
+    timestamp: firebase.database.ServerValue.TIMESTAMP,
+    auto: true
+  });
+}
+
+async function cancelDisconnectActivity() {
+  if (!disconnectActivityRef) return;
+  try {
+    await disconnectActivityRef.onDisconnect().cancel();
+  } catch(e) {}
+  disconnectActivityRef = null;
+}
+
+async function joinRoom() {
+  const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+  const seat = normalizeSeat(document.getElementById('seat-code-input').value);
+  if (code.length < 4) { alert('請輸入正確的房間碼'); return; }
+  if (!seat) { alert('請先輸入你的座號'); return; }
+  if (!db) { alert('目前無法連線 Firebase，無法確認座號是否重複'); return; }
+
+  const ok = await claimSeat(code, seat);
+  if (!ok) {
+    alert('此座號已有人使用，請確認是否輸入錯誤，或請老師協助。');
+    return;
+  }
+
+  currentRoom = code;
+  currentSeat = seat;
+  localStorage.setItem('ifs_my_seat_' + code, seat);
+  document.getElementById('room-overlay').style.display = 'none';
+  document.getElementById('room-info-bar').style.display = 'flex';
+  document.getElementById('room-chip-code').textContent = code;
+  document.getElementById('seat-chip-code').textContent = '座號 ' + seat;
+  document.getElementById('reviewer-name').value = seat;
+  document.getElementById('lookup-name').value = seat;
+  setupDisconnectActivity(seat);
+  pushActivity('join', seat);
+  // Start listeners
+  if (db) {
+    db.ref('.info/connected').on('value', snap => {
+      const el = document.getElementById('s-db-status');
+      if (el) el.textContent = snap.val() ? '🟢 已連線' : '🔴 連線中…';
+    });
+    startGroupsListener();
+    startFeedbacksReadListener();
+  }
+  refreshTargetList();
+  showToast('✅ 已加入房間 ' + code + '，座號 ' + seat);
+}
+
+async function leaveRoom() {
+  const leavingSeat = currentSeat;
+  const leavingRoom = currentRoom;
+  await cancelDisconnectActivity();
+  await releaseSeat();
+  if (leavingSeat && leavingRoom && db) {
+    currentRoom = leavingRoom;
+    await pushActivity('leave', leavingSeat).catch(() => {});
+  }
+  if (groupsListener && db) { db.ref('rooms/' + currentRoom + '/groups').off('value', groupsListener); groupsListener = null; }
+  if (feedbacksListener && db) { db.ref('rooms/' + currentRoom + '/feedbacks').off('value', feedbacksListener); feedbacksListener = null; }
+  currentRoom = null;
+  currentSeat = null;
+  document.getElementById('room-overlay').style.display = 'flex';
+  document.getElementById('room-info-bar').style.display = 'none';
+  document.getElementById('room-code-input').value = '';
+  document.getElementById('seat-code-input').value = '';
+  document.getElementById('reviewer-name').value = '';
+  document.getElementById('lookup-name').value = '';
+  allFeedbacks = [];
+}
+
+// ─── FIREBASE LISTENERS ───────────────────────────────────────────
+let remoteGroups = [];
+let allFeedbacks = [];
+
+function startGroupsListener() {
+  if (!db || !currentRoom) return;
+  groupsListener = db.ref('rooms/' + currentRoom + '/groups').on('value', snap => {
+    remoteGroups = snap.val() || [];
+    const rotSnap = db.ref('rooms/' + currentRoom + '/rotation');
+    rotSnap.once('value', rsnap => {
+      remoteRotation = rsnap.val() || 0;
+      refreshTargetList();
+    });
+  });
+  db.ref('rooms/' + currentRoom + '/rotation').on('value', snap => {
+    remoteRotation = snap.val() || 0;
+    refreshTargetList();
+  });
+}
+
+let remoteRotation = 0;
+
+function startFeedbacksReadListener() {
+  if (!db || !currentRoom) return;
+  feedbacksListener = db.ref('rooms/' + currentRoom + '/feedbacks').on('value', snap => {
+    const data = snap.val() || {};
+    allFeedbacks = Object.values(data).sort((a,b) => (a.timestamp||'').localeCompare(b.timestamp||''));
+    // Refresh lookup if active
+    if (currentSeat) doLookup();
+  });
+}
+
+// ─── STATE ───────────────────────────────────────
+const STORAGE_KEY_FEEDBACKS = 'ifs_feedbacks';
+const STORAGE_KEY_GROUPS    = 'ifs_groups';
+const STORAGE_KEY_ROTATION  = 'ifs_rotation';
+
+let fillerWords = ['然後', '那個', '呃', '就是', '嗯'];
+let fillerCounts = {};
+fillerWords.forEach(w => fillerCounts[w] = 0);
+let isDarkMode = false;
+
+
+
+// ─── THEME ────────────────────────────────────────
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  document.body.classList.toggle('dark-mode', isDarkMode);
+  document.getElementById('theme-btn').textContent = isDarkMode ? '☀️' : '🌙';
+}
+
+// ─── TABS ─────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+  document.getElementById('bnav-' + id).classList.add('active');
+  if (id === 'lookup') doLookup();
+  if (id === 'submit') refreshTargetList();
+}
+
+// ─── TARGET LIST ──────────────────────────────────
+function refreshTargetList() {
+  const sel = document.getElementById('target-name');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">請選擇面試者…</option>';
+  // Use Firebase groups if available, else localStorage fallback
+  let grpsToUse = remoteGroups.length > 0 ? remoteGroups : null;
+  let rotToUse = remoteGroups.length > 0 ? remoteRotation : 0;
+  if (!grpsToUse) {
+    try {
+      grpsToUse = JSON.parse(localStorage.getItem(STORAGE_KEY_GROUPS) || '[]');
+      rotToUse = parseInt(localStorage.getItem(STORAGE_KEY_ROTATION) || '0');
+    } catch(e) { grpsToUse = []; }
+  }
+  if (grpsToUse && grpsToUse.length > 0) {
+    grpsToUse.forEach((grp, gi) => {
+      const idx = rotToUse % grp.length;
+      const name = grp[idx];
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = `第${gi+1}組：${name}（本輪面試者）`;
+      sel.appendChild(opt);
+    });
+  }
+  const customOpt = document.createElement('option');
+  customOpt.value = '__custom__';
+  customOpt.textContent = '✏️ 手動輸入…';
+  sel.appendChild(customOpt);
+  if (prev) sel.value = prev;
+}
+
+function onTargetChange() {
+  const v = document.getElementById('target-name').value;
+  document.getElementById('target-custom-field').style.display = v === '__custom__' ? '' : 'none';
+}
+
+function getTarget() {
+  const sel = document.getElementById('target-name').value;
+  if (sel === '__custom__') return document.getElementById('target-custom').value.trim();
+  return sel;
+}
+
+function normalizeFeedbackTarget(value) {
+  return String(value || '')
+    .trim()
+    .replace(/^座號\s*/i, '')
+    .replace(/\s+/g, '')
+    .replace(/號$/i, '');
+}
+
+// ─── SAVE MY NAME ────────────────────────────────
+function saveMyName() {
+  if (currentSeat) document.getElementById('reviewer-name').value = currentSeat;
+}
+
+// ─── FILLER GRID ─────────────────────────────────
+function renderFillerGrid() {
+  const grid = document.getElementById('filler-grid');
+  grid.innerHTML = fillerWords.map(w => `
+    <button class="filler-btn" onclick="bumpFiller('${w}')">
+      <span class="filler-word">${w}</span>
+      <span class="filler-count" id="fc-${w}">${fillerCounts[w]}</span>
+    </button>
+  `).join('');
+  updateFillerTotal();
+}
+
+function bumpFiller(w) {
+  fillerCounts[w] = (fillerCounts[w] || 0) + 1;
+  document.getElementById('fc-' + w).textContent = fillerCounts[w];
+  updateFillerTotal();
+}
+
+function updateFillerTotal() {
+  const t = fillerWords.reduce((a, w) => a + (fillerCounts[w] || 0), 0);
+  document.getElementById('filler-total').textContent = `總計：${t} 次`;
+}
+
+function resetFillers() {
+  fillerWords.forEach(w => fillerCounts[w] = 0);
+  renderFillerGrid();
+}
+
+function addCustomFiller() {
+  const inp = document.getElementById('custom-filler-input');
+  const word = inp.value.trim();
+  if (!word) { showToast('請輸入贅詞'); return; }
+  if (fillerWords.includes(word)) { showToast('此贅詞已存在'); inp.value = ''; return; }
+  fillerWords.push(word);
+  fillerCounts[word] = 0;
+  inp.value = '';
+  renderFillerGrid();
+  showToast(`已新增：${word}`);
+}
+
+// ─── SUBMIT ──────────────────────────────────────
+function submitFeedback() {
+  const reviewer = currentSeat || document.getElementById('reviewer-name').value.trim();
+  const target = getTarget();
+  const round = document.getElementById('round-select').value;
+  const pos = document.getElementById('fb-pos').value.trim();
+  const imp = document.getElementById('fb-imp').value.trim();
+  const enc = document.getElementById('fb-enc').value.trim();
+
+  if (!reviewer) { showToast('請先用你的座號加入場次'); return; }
+  if (!target) { showToast('請選擇或填寫面試者'); return; }
+  if (!pos && !imp && !enc) { showToast('請至少填寫一項回饋'); return; }
+
+  const fillerData = {};
+  let fillerTotal = 0;
+  fillerWords.forEach(w => {
+    if (fillerCounts[w] > 0) { fillerData[w] = fillerCounts[w]; fillerTotal += fillerCounts[w]; }
+  });
+
+  const feedback = {
+    id: Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    timestamp: new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'}),
+    reviewer, target, targetKey: normalizeFeedbackTarget(target), round, pos, imp, enc,
+    fillerData, fillerTotal
+  };
+
+  // Save to Firebase
+  if (db && currentRoom) {
+    db.ref('rooms/' + currentRoom + '/feedbacks').push(feedback);
+  }
+  // Also save to localStorage as backup
+  try {
+    const feedbacks = JSON.parse(localStorage.getItem(STORAGE_KEY_FEEDBACKS) || '[]');
+    feedbacks.push(feedback);
+    localStorage.setItem(STORAGE_KEY_FEEDBACKS, JSON.stringify(feedbacks));
+  } catch(e) {}
+
+  // Show result
+  const fillerLine = fillerTotal > 0
+    ? '\n🔢 贅詞：' + Object.entries(fillerData).map(([w,c]) => `${w}×${c}`).join('  ') + `（共${fillerTotal}次）`
+    : '';
+  const resultText =
+    `【回饋者：${reviewer}】→ 面試者：${target}（${round}）\n` +
+    `👍 優點：${pos || '（未填）'}\n` +
+    `🎯 改進點：${imp || '（未填）'}\n` +
+    `💪 鼓勵：${enc || '（未填）'}${fillerLine}`;
+
+  document.getElementById('submitted-result-box').textContent = resultText;
+  document.getElementById('submitted-card').style.display = '';
+  showToast('✅ 回饋已提交！');
+}
+
+function clearForm() {
+  document.getElementById('fb-pos').value = '';
+  document.getElementById('fb-imp').value = '';
+  document.getElementById('fb-enc').value = '';
+  document.getElementById('target-name').value = '';
+  document.getElementById('target-custom-field').style.display = 'none';
+  document.getElementById('submitted-card').style.display = 'none';
+  resetFillers();
+}
+
+function copyResult() {
+  const text = document.getElementById('submitted-result-box').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('已複製！'));
+}
+
+async function shareResult() {
+  const text = document.getElementById('submitted-result-box').textContent;
+  if (navigator.share) {
+    try { await navigator.share({ title: '面試回饋', text }); }
+    catch(e) { if (e.name !== 'AbortError') navigator.clipboard.writeText(text).then(() => showToast('已複製！')); }
+  } else {
+    navigator.clipboard.writeText(text).then(() => showToast('已複製！可貼給面試者'));
+  }
+}
+
+// ─── LOOKUP ──────────────────────────────────────
+function liveSearch() {
+  doLookup();
+}
+
+function doLookup() {
+  const q = currentSeat || normalizeSeat(document.getElementById('lookup-name').value);
+  const container = document.getElementById('lookup-results');
+
+  if (!q) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">請先加入場次</div>
+      <div style="font-size:13px;">加入時綁定座號後，只能查看自己的回饋</div></div>`;
+    return;
+  }
+
+  // Use Firebase-synced feedbacks, or localStorage fallback
+  const feedbacks = allFeedbacks.length > 0 ? allFeedbacks
+    : JSON.parse(localStorage.getItem(STORAGE_KEY_FEEDBACKS) || '[]');
+  const qKey = normalizeFeedbackTarget(q);
+  const matched = feedbacks.filter(f => {
+    const targetKey = f.targetKey || normalizeFeedbackTarget(f.target);
+    return targetKey === qKey || normalizeFeedbackTarget(f.target) === qKey;
+  });
+
+  if (matched.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">尚無回饋</div>
+      <div style="font-size:13px;">座號「${q}」目前還沒有收到任何回饋</div></div>`;
+    return;
+  }
+
+  const total = matched.length;
+  container.innerHTML = `
+    <div class="status-badge">📬 座號 ${q} 共收到 ${total} 筆回饋</div>
+    ${matched.map(f => renderFeedbackCard(f)).join('')}
+  `;
+}
+
+function renderFeedbackCard(f) {
+  const fillerHtml = f.fillerTotal > 0
+    ? `<div class="feedback-row"><div class="feedback-icon">🔢</div>
+       <div><div class="feedback-section-label" style="color:var(--coral);">贅詞統計</div>
+       <div class="filler-pills">${Object.entries(f.fillerData).map(([w,c]) =>
+         `<span class="filler-pill">${w} ×${c}</span>`).join('')}
+         <span class="filler-pill" style="background:rgba(217,64,64,0.2);border-color:var(--coral);">共${f.fillerTotal}次</span>
+       </div></div></div>`
+    : '';
+
+  return `<div class="feedback-card fade-in">
+    <div class="feedback-header">
+      <span class="feedback-from">👤 ${f.reviewer} 的回饋　${f.timestamp}</span>
+      <span class="feedback-round">${f.round}</span>
+    </div>
+    ${f.pos ? `<div class="feedback-row"><div class="feedback-icon">👍</div>
+      <div><div class="feedback-section-label" style="color:var(--teal);">優點</div>
+      <div class="feedback-text">${f.pos}</div></div></div>` : ''}
+    ${f.imp ? `<div class="feedback-row"><div class="feedback-icon">🎯</div>
+      <div><div class="feedback-section-label" style="color:var(--coral);">改進點</div>
+      <div class="feedback-text">${f.imp}</div></div></div>` : ''}
+    ${f.enc ? `<div class="feedback-row"><div class="feedback-icon">💪</div>
+      <div><div class="feedback-section-label" style="color:var(--amber);">鼓勵</div>
+      <div class="feedback-text">${f.enc}</div></div></div>` : ''}
+    ${fillerHtml}
+  </div>`;
+}
+
+// ─── INIT ─────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  renderFillerGrid();
+  initFirebase();
+  // If Firebase not configured, still allow manual localStorage mode
+  if (!FIREBASE_CONFIG) {
+    // Show room overlay but allow bypass for localhost testing
+    const urlRoom = new URLSearchParams(window.location.search).get('room');
+    if (urlRoom) {
+      currentRoom = urlRoom;
+      document.getElementById('room-overlay').style.display = 'none';
+      document.getElementById('room-info-bar').style.display = 'flex';
+      document.getElementById('room-chip-code').textContent = urlRoom;
+      refreshTargetList();
+    }
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  if (db && currentRoom && currentSeat) {
+    const ref = currentSeatRef || db.ref('rooms/' + currentRoom + '/students/' + seatKey(currentSeat));
+    try { ref.update({ lastSeen: Date.now() }); } catch(e) {}
+  }
+});
+
+// ─── TOAST ────────────────────────────────────────
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('show');
+  // Force reflow before re-adding class
+  void t.offsetWidth;
+  requestAnimationFrame(() => {
+    t.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => t.classList.remove('show'), 2200);
+  });
+}
+
+// ─── STUDENT FIREBASE SETUP WIZARD ────────────────────────────────
+function showStudentFirebaseWizard() {
+  document.getElementById('s-fb-wizard-overlay').style.display = 'flex';
+  const saved = localStorage.getItem('firebase_config_v1');
+  if (saved) document.getElementById('s-fb-wizard-textarea').value = saved;
+}
+function closeStudentFirebaseWizard() {
+  document.getElementById('s-fb-wizard-overlay').style.display = 'none';
+}
+function saveStudentFirebaseConfig() {
+  const raw = document.getElementById('s-fb-wizard-textarea').value.trim();
+  if (!raw) { alert('請貼入 Firebase 設定'); return; }
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch(e1) {
+    try {
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error();
+      const jsonLike = match[0]
+        .replace(/\/\/.*$/gm,'').replace(/,\s*\}/g,'}')
+        .replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)(\s*:)/g,'$1"$2"$3')
+        .replace(/'/g,'"');
+      parsed = JSON.parse(jsonLike);
+    } catch(e2) { alert('格式有誤，請確認已複製完整設定'); return; }
+  }
+  if (!parsed.apiKey || !parsed.databaseURL) { alert('⚠️ 缺少 apiKey 或 databaseURL'); return; }
+  localStorage.setItem('firebase_config_v1', JSON.stringify(parsed));
+  closeStudentFirebaseWizard();
+  location.reload();
+}
+window.addEventListener('load', function() {
+  if (!_loadSavedFirebaseConfig()) {
+    setTimeout(showStudentFirebaseWizard, 600);
+  }
+});
+</script>
+
+<!-- Student Firebase Setup Wizard -->
+<div id="s-fb-wizard-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#1a1a2e;border:2px solid #4db6ac;border-radius:14px;max-width:480px;width:100%;padding:24px;font-family:system-ui,sans-serif;">
+    <div style="font-size:17px;font-weight:800;color:#e0e0e0;margin-bottom:6px;">🔧 首次使用：輸入 Firebase 設定</div>
+    <p style="color:#9e9e9e;font-size:12.5px;margin:0 0 14px;">請向老師索取 Firebase 設定，或自行到 Firebase Console 複製 firebaseConfig。</p>
+    <textarea id="s-fb-wizard-textarea" placeholder='貼上 firebaseConfig，例如：
+{
+  "apiKey": "AIzaSy...",
+  "databaseURL": "https://my-project-default-rtdb.firebaseio.com",
+  ...
+}' style="width:100%;height:130px;background:#0d0d1a;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#e0e0e0;font-family:monospace;font-size:12px;padding:10px;resize:vertical;box-sizing:border-box;margin-bottom:12px;"></textarea>
+    <div style="display:flex;gap:8px;">
+      <button onclick="saveStudentFirebaseConfig()" style="flex:2;background:#4db6ac;color:#0d0d1a;border:none;padding:11px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;">✅ 儲存並繼續</button>
+      <button onclick="closeStudentFirebaseWizard()" style="flex:1;background:rgba(255,255,255,0.08);color:#9e9e9e;border:1px solid rgba(255,255,255,0.15);padding:11px;border-radius:8px;font-size:14px;cursor:pointer;">略過</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

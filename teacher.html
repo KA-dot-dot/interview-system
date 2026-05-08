@@ -1,0 +1,3372 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>面試模擬回饋賽 — 老師端</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #f0f6ff;
+    --navy2: #e2eef9;
+    --navy3: #d0e4f5;
+    --teal: #2196c9;
+    --teal2: #1a7aaa;
+    --amber: #e07b00;
+    --amber2: #c46b00;
+    --coral: #d94040;
+    --text: #1a2d42;
+    --text2: #3d6080;
+    --text3: #7aa0be;
+    --border: rgba(33,150,201,0.25);
+    --border2: rgba(33,150,201,0.13);
+    --card: rgba(255,255,255,0.85);
+    --radius: 12px;
+    --radius-lg: 18px;
+    --bg: #eaf4fb;
+    --bg2: #fff;
+    --header-bg: rgba(255,255,255,0.92);
+    --input-bg: rgba(255,255,255,0.9);
+  }
+
+  .dark-mode {
+    --navy: #1a2535;
+    --navy2: #1e2d40;
+    --navy3: #243347;
+    --teal: #38b2e8;
+    --teal2: #2a9fd4;
+    --amber: #f0960a;
+    --amber2: #d47f00;
+    --coral: #e85050;
+    --text: #e4f0fb;
+    --text2: #93b8d0;
+    --text3: #5a85a0;
+    --border: rgba(56,178,232,0.25);
+    --border2: rgba(56,178,232,0.12);
+    --card: rgba(26,37,53,0.9);
+    --bg: #111c2b;
+    --bg2: #152033;
+    --header-bg: rgba(17,28,43,0.95);
+    --input-bg: rgba(26,40,60,0.9);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(33,150,201,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(224,123,0,0.05) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; }
+
+  /* ─── HEADER ─── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    transition: background 0.3s;
+  }
+  .header-logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--teal);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 1px;
+  }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .header-nav { display: flex; gap: 6px; }
+  .nav-btn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text2);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { color: var(--text); background: var(--border2); }
+  .nav-btn.active {
+    background: rgba(33,150,201,0.12);
+    border-color: var(--teal);
+    color: var(--teal);
+    font-weight: 500;
+  }
+  .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .icon-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* ─── PAGES ─── */
+  .page { display: none; padding: 28px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ─── SECTION TITLE ─── */
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+    color: var(--teal); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-title {
+    font-size: 26px; font-weight: 900; color: var(--text);
+    margin-bottom: 4px; line-height: 1.2;
+  }
+  .section-sub { font-size: 14px; color: var(--text2); margin-bottom: 28px; }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    backdrop-filter: blur(8px);
+    transition: background 0.3s;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 700; color: var(--teal);
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;
+  }
+
+  /* ─── GRID ─── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* ─── SETUP PAGE ─── */
+  .import-area {
+    width: 100%; height: 180px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Noto Sans TC', monospace;
+    font-size: 14px; padding: 14px; resize: vertical; outline: none;
+    line-height: 1.8; transition: border-color 0.2s, background 0.3s;
+  }
+  .import-area:focus { border-color: var(--teal); }
+  .import-area::placeholder { color: var(--text3); }
+
+  .input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .input-label { font-size: 13px; color: var(--text2); min-width: 90px; }
+  .num-input {
+    width: 72px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px; font-weight: 700; text-align: center;
+    padding: 7px; outline: none; transition: border-color 0.2s;
+  }
+  .num-input:focus { border-color: var(--teal); }
+  .input-hint { font-size: 12px; color: var(--text3); }
+
+  /* ─── ABSENT MEMBER MGMT ─── */
+  .member-manage-area {
+    margin-top: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+  .member-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(33,150,201,0.1);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 8px 3px 10px;
+    font-size: 12px;
+    color: var(--text2);
+    margin: 3px;
+    transition: all 0.2s;
+  }
+  .member-chip.absent {
+    background: rgba(217,64,64,0.1);
+    border-color: rgba(217,64,64,0.3);
+    color: var(--coral);
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+  .chip-remove {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: rgba(217,64,64,0.15);
+    color: var(--coral); font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; line-height: 1;
+  }
+  .chip-remove:hover { background: var(--coral); color: white; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    gap: 8px; padding: 10px 22px;
+    border-radius: 10px; border: 1px solid;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.18s; white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--teal); border-color: var(--teal); color: var(--navy); }
+  .btn-primary:hover { background: var(--teal2); border-color: var(--teal2); }
+  .btn-amber { background: var(--amber); border-color: var(--amber); color: var(--navy); }
+  .btn-amber:hover { background: var(--amber2); border-color: var(--amber2); }
+  .btn-ghost { background: transparent; border-color: var(--border); color: var(--text2); }
+  .btn-ghost:hover { border-color: var(--teal); color: var(--teal); background: var(--border2); }
+  .btn-coral { background: transparent; border-color: var(--coral); color: var(--coral); }
+  .btn-coral:hover { background: rgba(217,64,64,0.1); }
+  .btn-lg { padding: 13px 30px; font-size: 16px; border-radius: 12px; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 7px; }
+
+  /* ─── MEMBER BADGE ─── */
+  #member-count-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(33,150,201,0.08);
+    border: 1px solid var(--teal);
+    border-radius: 20px; padding: 4px 14px;
+    font-size: 13px; color: var(--teal); font-weight: 700; margin-bottom: 16px;
+  }
+
+  /* ─── GROUPS DISPLAY ─── */
+  .groups-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px; margin-top: 18px;
+  }
+  .group-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s;
+  }
+  .group-card:hover { border-color: rgba(0,201,177,0.4); }
+  .group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 14px;
+    background: rgba(33,150,201,0.08); border-bottom: 1px solid var(--border2);
+  }
+  .group-name-text { font-weight: 700; font-size: 14px; color: var(--teal); letter-spacing: 0.5px; }
+  .group-count {
+    font-size: 11px; color: var(--teal);
+    background: rgba(33,150,201,0.12); border: 1px solid rgba(33,150,201,0.3);
+    border-radius: 10px; padding: 2px 8px; font-weight: 700;
+  }
+  .group-body { padding: 10px 14px 12px; }
+  .group-roles { display: flex; flex-direction: column; gap: 5px; }
+  .role-row { display: flex; align-items: center; gap: 8px; }
+  .role-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+    letter-spacing: 0.5px; white-space: nowrap; min-width: 44px; text-align: center;
+  }
+  .role-badge.host {
+    background: rgba(224,123,0,0.12); color: var(--amber); border: 1px solid rgba(224,123,0,0.3);
+  }
+  .role-badge.judge {
+    background: rgba(33,150,201,0.1); color: var(--teal); border: 1px solid rgba(33,150,201,0.25);
+  }
+  .role-name { font-size: 13px; color: var(--text); }
+
+  /* ─── DRAG DROP for manual group editing ─── */
+  .group-card.drag-over { border-color: var(--amber); background: rgba(224,123,0,0.06); }
+  .role-row[draggable="true"] { cursor: grab; }
+  .role-row[draggable="true"]:active { cursor: grabbing; opacity: 0.7; }
+
+  /* ─── TIMER PAGE ─── */
+  .phase-tabs {
+    display: flex; gap: 0;
+    background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 4px; margin-bottom: 24px; width: fit-content;
+  }
+  .phase-tab {
+    padding: 9px 20px; border-radius: 9px; border: none;
+    background: transparent; color: var(--text2);
+    font-family: 'Noto Sans TC', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .phase-tab:hover { color: var(--text); }
+  .phase-tab.active { background: var(--teal); color: var(--navy); font-weight: 700; }
+  .phase-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
+  /* ─── TIMER DISPLAY ─── */
+  .timer-layout { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: start; }
+  .timer-main { display: flex; flex-direction: column; align-items: center; padding: 40px 30px; }
+  .phase-info-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(33,150,201,0.1); border: 1px solid rgba(33,150,201,0.25);
+    border-radius: 20px; padding: 5px 16px; font-size: 12px; color: var(--teal);
+    font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 28px;
+  }
+  .phase-num-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+
+  .timer-face {
+    position: relative; width: 260px; height: 260px; margin-bottom: 24px;
+    transition: filter 0.3s;
+  }
+  .timer-face.flash-red { animation: flashRed 0.5s ease; }
+  @keyframes flashRed {
+    0% { filter: none; }
+    20% { filter: drop-shadow(0 0 30px rgba(217,64,64,0.9)) brightness(1.3); }
+    60% { filter: drop-shadow(0 0 60px rgba(217,64,64,0.6)) brightness(1.15); }
+    100% { filter: none; }
+  }
+  /* Full-screen flash overlay */
+  #flash-overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 9000;
+    background: rgba(217,64,64,0); transition: background 0.05s;
+  }
+  #flash-overlay.active { animation: screenFlash 1.2s ease; }
+  @keyframes screenFlash {
+    0% { background: rgba(217,64,64,0); }
+    15% { background: rgba(217,64,64,0.45); }
+    50% { background: rgba(217,64,64,0.3); }
+    100% { background: rgba(217,64,64,0); }
+  }
+
+  .timer-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+  .timer-circle-bg { fill: none; stroke: rgba(33,150,201,0.12); stroke-width: 10; }
+  .timer-circle-prog {
+    fill: none; stroke: var(--teal); stroke-width: 10; stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+  }
+  .timer-digits {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  }
+  .timer-time {
+    font-family: 'Oswald', sans-serif; font-size: 62px; font-weight: 700;
+    color: var(--text); line-height: 1; letter-spacing: 2px;
+  }
+  .timer-time.warning { color: var(--amber); }
+  .timer-time.danger { color: var(--coral); }
+  .timer-label-sm { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+
+  .timer-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
+
+  /* ─── AUTO-ADVANCE ─── */
+  .auto-advance-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; margin-top: 12px;
+    background: rgba(224,123,0,0.07); border: 1px solid rgba(224,123,0,0.2);
+    border-radius: var(--radius); font-size: 13px; color: var(--text2);
+  }
+  .auto-advance-bar.countdown-active {
+    background: rgba(224,123,0,0.12); border-color: rgba(224,123,0,0.4);
+    color: var(--amber); font-weight: 700;
+  }
+  .toggle-switch {
+    position: relative; width: 38px; height: 22px; flex-shrink: 0;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: rgba(33,150,201,0.2); border-radius: 22px; transition: all 0.25s;
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background: white; border-radius: 50%; transition: 0.25s;
+  }
+  .toggle-switch input:checked + .toggle-slider { background: var(--amber); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+  /* ─── PHASE DESC ─── */
+  .phase-desc-card {
+    background: rgba(255,255,255,0.7); border: 1px solid var(--border2);
+    border-radius: var(--radius); padding: 18px;
+  }
+  .dark-mode .phase-desc-card { background: rgba(26,37,53,0.7); }
+  .phase-desc-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .phase-desc-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .phase-desc-list li {
+    font-size: 13px; color: var(--text2);
+    display: flex; align-items: flex-start; gap: 8px; line-height: 1.6;
+  }
+  .phase-desc-list li::before { content: '▸'; color: var(--teal); flex-shrink: 0; margin-top: 1px; }
+
+  /* Timer settings */
+  .timer-settings {
+    background: rgba(255,255,255,0.7); border: 1px solid var(--border2);
+    border-radius: var(--radius); padding: 18px; margin-top: 18px;
+  }
+  .dark-mode .timer-settings { background: rgba(26,37,53,0.7); }
+  .settings-row {
+    display: grid; grid-template-columns: 1fr auto; align-items: center; margin-bottom: 12px;
+  }
+  .settings-label { font-size: 13px; color: var(--text2); }
+  .settings-value { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--text); font-size: 14px; justify-content: flex-end; }
+  .settings-value span { min-width: 64px; text-align: center; }
+  .step-btn {
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--input-bg); color: var(--text2);
+    font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .step-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* ─── STATUS BAR ─── */
+  .status-bar {
+    display: flex; gap: 14px; padding: 14px 20px;
+    background: rgba(33,150,201,0.06); border: 1px solid var(--border2);
+    border-radius: var(--radius); margin-bottom: 22px;
+    align-items: center; flex-wrap: wrap;
+  }
+  .status-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text2); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+  .status-dot.amber { background: var(--amber); }
+  .status-dot.coral { background: var(--coral); }
+
+  /* ─── TOAST ─── */
+  #toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card);
+    border: 1px solid var(--teal); color: var(--teal);
+    padding: 11px 24px; border-radius: 30px;
+    font-size: 14px; font-weight: 700; z-index: 9999;
+    transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap; backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(33,150,201,0.2);
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ─── CONFIRM DIALOG ─── */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 8000;
+    display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px);
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 28px 32px; max-width: 380px; width: 90%; text-align: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-icon { font-size: 36px; margin-bottom: 12px; }
+  .modal-title { font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+  .modal-msg { font-size: 14px; color: var(--text2); margin-bottom: 22px; line-height: 1.6; }
+  .modal-btns { display: flex; gap: 10px; justify-content: center; }
+
+  /* ─── SESSION LOG ─── */
+  .log-entry {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    background: rgba(33,150,201,0.04); border: 1px solid var(--border2);
+    font-size: 13px; color: var(--text2); margin-bottom: 7px;
+    transition: background 0.2s;
+  }
+  .log-time { font-size: 11px; color: var(--text3); white-space: nowrap; }
+  .log-label { flex: 1; }
+
+  /* ─── OBSERVATION CHECKLIST ─── */
+  .obs-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .obs-item {
+    background: var(--card);
+    border: 1px solid var(--border2); border-radius: 9px;
+    padding: 11px 14px; display: flex; gap: 11px; align-items: flex-start;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .obs-item.checked {
+    background: rgba(33,150,201,0.08); border-color: rgba(33,150,201,0.4);
+  }
+  .obs-check {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 2px solid var(--teal); background: transparent;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s; font-size: 13px; color: transparent;
+  }
+  .obs-item.checked .obs-check {
+    background: var(--teal); color: white; border-color: var(--teal);
+  }
+  .obs-text { font-size: 13px; color: var(--text2); line-height: 1.6; flex: 1; }
+  .obs-text strong { color: var(--text); font-weight: 700; }
+
+  /* ─── FILLER WORD COUNTER ─── */
+  .filler-counter-area {
+    background: var(--card); border: 1px solid rgba(217,64,64,0.3);
+    border-radius: var(--radius); padding: 16px; margin-top: 16px;
+  }
+  .filler-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 12px; }
+  .filler-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 8px; border-radius: 10px;
+    border: 1px solid rgba(217,64,64,0.25); background: rgba(217,64,64,0.05);
+    cursor: pointer; transition: all 0.18s; user-select: none;
+  }
+  .filler-btn:hover { border-color: var(--coral); background: rgba(217,64,64,0.12); }
+  .filler-btn:active { transform: scale(0.95); }
+  .filler-word { font-size: 14px; font-weight: 700; color: var(--coral); }
+  .filler-count {
+    font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700;
+    color: var(--text); line-height: 1;
+  }
+  .filler-total {
+    font-size: 12px; color: var(--text3); margin-top: 10px; text-align: right;
+  }
+
+  /* ─── SANDWICH FEEDBACK FORM ─── */
+  .sandwich-form { margin-top: 20px; }
+  .sandwich-section {
+    display: flex; gap: 12px; padding: 12px; border-radius: 10px;
+    border: 1px solid var(--border2); margin-bottom: 10px; align-items: flex-start;
+  }
+  .sandwich-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .sandwich-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+  .sandwich-textarea {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border2);
+    border-radius: 8px; color: var(--text); font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px; padding: 8px 10px; resize: none; outline: none; min-height: 60px;
+    transition: border-color 0.2s;
+  }
+  .sandwich-textarea:focus { border-color: var(--teal); }
+  .section-pos .sandwich-label { color: var(--teal); }
+  .section-imp .sandwich-label { color: var(--coral); }
+  .section-enc .sandwich-label { color: var(--amber); }
+  .section-pos { background: rgba(33,150,201,0.05); border-color: rgba(33,150,201,0.2); }
+  .section-imp { background: rgba(217,64,64,0.05); border-color: rgba(217,64,64,0.2); }
+  .section-enc { background: rgba(224,123,0,0.05); border-color: rgba(224,123,0,0.2); }
+
+  /* ─── GROUPS PAGE EXPORT ─── */
+  .print-area-hidden { display: none; }
+
+  /* ─── RESPONSIVE ─── */
+  @media(max-width: 700px) {
+    .page { padding: 14px 14px 84px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .timer-layout { grid-template-columns: 1fr; }
+    .header { padding: 10px 14px; }
+    .header-nav { display: none; }
+    .mobile-bottom-nav { display: flex !important; }
+    .section-title { font-size: 20px; }
+    .timer-face { width: 190px; height: 190px; }
+    .timer-time { font-size: 44px; }
+    .timer-main { padding: 24px 16px; }
+    .timer-controls { flex-wrap: wrap; justify-content: center; }
+    .phase-tabs { overflow-x: auto; flex-wrap: nowrap; width: 100%; -webkit-overflow-scrolling: touch; }
+    .phase-tab { white-space: nowrap; flex-shrink: 0; padding: 8px 14px; font-size: 12px; }
+    .auto-advance-bar { flex-wrap: wrap; gap: 7px; }
+    .filler-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .flex-row { flex-wrap: wrap; }
+    .card { padding: 15px; }
+    .btn { min-height: 40px; }
+    .btn-sm { min-height: 36px; }
+    #toast { bottom: 78px; }
+  }
+  /* MOBILE BOTTOM NAV */
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0; height: 62px;
+    background: var(--header-bg); border-top: 1px solid var(--border);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    z-index: 200; align-items: stretch; justify-content: space-around;
+    padding: 0 2px; padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .mobile-nav-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    flex: 1; gap: 2px; border: none; background: transparent;
+    color: var(--text3); font-family: 'Noto Sans TC', sans-serif;
+    font-size: 10px; font-weight: 500; cursor: pointer; padding: 5px 2px;
+    -webkit-tap-highlight-color: transparent; transition: color 0.2s;
+  }
+  .mobile-nav-btn .mnav-icon { font-size: 19px; line-height: 1; }
+  .mobile-nav-btn.active { color: var(--teal); }
+
+  /* ─── FULLSCREEN ─── */
+  .fullscreen-overlay {
+    position: fixed; inset: 0; z-index: 7000;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: var(--bg);
+  }
+  .fullscreen-overlay.show { display: flex; }
+  .fs-timer-face { position: relative; width: 400px; height: 400px; margin-bottom: 30px; }
+  .fs-timer-face.flash-red { animation: flashRed 0.5s ease; }
+  @media(max-width:500px) {
+    .fs-timer-face { width: 280px; height: 280px; }
+  }
+  .fs-timer-time {
+    font-family: 'Oswald', sans-serif; font-size: 100px; font-weight: 700;
+    color: var(--text); line-height: 1; letter-spacing: 4px;
+  }
+  @media(max-width:500px) { .fs-timer-time { font-size: 72px; } }
+  .fs-timer-time.warning { color: var(--amber); }
+  .fs-timer-time.danger { color: var(--coral); }
+  .fs-phase-name { font-size: 18px; color: var(--text2); letter-spacing: 2px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+  .fs-status { font-size: 14px; color: var(--text3); letter-spacing: 1px; margin-bottom: 28px; }
+  .fs-close-btn {
+    position: fixed; top: 20px; right: 20px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text2); font-size: 15px; padding: 8px 18px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; font-family: 'Noto Sans TC', sans-serif;
+    z-index: 9500;
+  }
+  .fs-close-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .fs-esc-hint {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; color: var(--text3); letter-spacing: 1px;
+    background: var(--card); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 4px 14px;
+    z-index: 9500;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulsing { animation: pulse 1s ease-in-out infinite; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeIn 0.3s ease; }
+
+  .timer-groups-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+  }
+  .timer-group-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  }
+  .timer-group-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 13px; background: rgba(33,150,201,0.08); border-bottom: 1px solid var(--border2);
+  }
+  .timer-group-card-title { font-size: 13px; font-weight: 700; color: var(--teal); }
+  .timer-group-card-count {
+    font-size: 11px; color: var(--teal); background: rgba(33,150,201,0.12);
+    border: 1px solid rgba(33,150,201,0.3); border-radius: 10px; padding: 2px 7px; font-weight: 700;
+  }
+  .timer-group-card-body { padding: 10px 13px 12px; display: flex; flex-direction: column; gap: 5px; }
+  .timer-role-row { display: flex; align-items: center; gap: 8px; }
+  .timer-role-row.interviewee {
+    padding: 5px 7px; background: rgba(224,123,0,0.08);
+    border: 1px solid rgba(224,123,0,0.2); border-radius: 7px;
+  }
+  .timer-role-name { font-size: 13px; color: var(--text); font-weight: 500; }
+  .timer-role-row.interviewee .timer-role-name { color: var(--amber); font-weight: 700; }
+
+  .divider { height: 1px; background: var(--border2); margin: 20px 0; }
+  .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .spacer { flex: 1; }
+  .text-teal { color: var(--teal); }
+  .text-amber { color: var(--amber); }
+  .text-muted { color: var(--text2); font-size: 13px; }
+  .mt-4 { margin-top: 16px; }
+  .mt-2 { margin-top: 8px; }
+
+  /* Print styles */
+  @media print {
+    .header, .header-nav, .icon-btn, .btn, .phase-tabs, .timer-controls,
+    .filler-counter-area, .auto-advance-bar, .sandwich-form { display: none !important; }
+    .page { display: block !important; padding: 10px; }
+    .groups-grid { grid-template-columns: repeat(3, 1fr); }
+    .group-card { break-inside: avoid; }
+  }
+
+  /* ─── STUDENT MODE ─── */
+  .role-mode-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    border: 1px solid; cursor: default;
+  }
+  .role-mode-badge.teacher {
+    background: rgba(33,150,201,0.1); border-color: var(--teal); color: var(--teal);
+  }
+  .role-mode-badge.student {
+    background: rgba(224,123,0,0.1); border-color: var(--amber); color: var(--amber);
+  }
+  .student-banner {
+    background: linear-gradient(135deg, rgba(224,123,0,0.12), rgba(224,123,0,0.04));
+    border: 1px solid rgba(224,123,0,0.3); border-radius: var(--radius-lg);
+    padding: 18px 22px; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .student-banner-icon { font-size: 28px; }
+  .student-banner-text { flex: 1; }
+  .student-banner-title { font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 3px; }
+  .student-banner-sub { font-size: 13px; color: var(--text2); }
+  .student-select {
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif; font-size: 14px;
+    padding: 8px 12px; outline: none; width: 100%; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .student-select:focus { border-color: var(--teal); }
+  .submit-result-box {
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px; font-size: 13px;
+    color: var(--text2); line-height: 1.8; white-space: pre-wrap;
+    font-family: 'Noto Sans TC', monospace; min-height: 80px; margin-top: 12px;
+  }
+
+  /* Custom filler input */
+  .custom-filler-row {
+    display: flex; gap: 8px; margin-top: 10px; align-items: center;
+  }
+  .custom-filler-input {
+    flex: 1; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif; font-size: 13px;
+    padding: 6px 10px; outline: none; transition: border-color 0.2s;
+  }
+  .custom-filler-input:focus { border-color: var(--teal); }
+  .filler-save-row {
+    display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .filler-interviewee-input {
+    flex: 1; min-width: 120px;
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif; font-size: 13px;
+    padding: 6px 10px; outline: none; transition: border-color 0.2s;
+  }
+  .filler-interviewee-input:focus { border-color: var(--coral); }
+
+  /* ─── SESSION PANEL ─── */
+  .session-bar {
+    display: flex; align-items: center; gap: 10px; padding: 8px 16px;
+    background: linear-gradient(90deg, rgba(33,150,201,0.08), rgba(224,123,0,0.06));
+    border-bottom: 1px solid var(--border); font-size: 13px; flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  @media (max-width: 600px) {
+    .session-url { display: none !important; }
+  }
+  .room-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--teal); color: #fff; border-radius: 20px;
+    padding: 5px 14px; font-weight: 900; font-size: 15px; letter-spacing: 2px;
+    font-family: 'Oswald', sans-serif;
+  }
+  .room-badge .room-label { font-size: 10px; letter-spacing: 1px; opacity: 0.8; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; }
+  .session-url { font-size: 12px; color: var(--text3); word-break: break-all; flex: 1; min-width: 0; }
+  .session-panel-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 8500;
+    display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px);
+  }
+  .session-panel-overlay.show { display: flex; }
+  .session-panel {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 28px; max-width: 420px; width: 92%; text-align: center; animation: fadeIn 0.2s ease;
+  }
+  .qr-wrap { display: flex; justify-content: center; margin: 16px 0; }
+  .qr-wrap canvas { border-radius: 10px; border: 4px solid var(--teal); }
+  .student-url-box {
+    background: var(--input-bg); border: 1px solid var(--border); border-radius: 9px;
+    padding: 10px 14px; font-size: 12px; color: var(--text2); word-break: break-all;
+    margin-bottom: 14px; line-height: 1.7; text-align: left;
+  }
+  .new-session-overlay {
+    position: fixed; inset: 0; background: var(--bg); z-index: 7500;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .new-session-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 36px 32px; max-width: 380px; width: 90%; text-align: center;
+  }
+  .firebase-warn {
+    background: rgba(217,64,64,0.08); border: 1px solid rgba(217,64,64,0.3);
+    border-radius: 9px; padding: 12px 14px; margin: 14px 0;
+    font-size: 12px; color: var(--coral); line-height: 1.7; text-align: left;
+  }
+  .connected-dot { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; display: inline-block; animation: pulse 2s infinite; }
+  .disconnected-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); display: inline-block; }
+
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- QR Code -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <!-- ★ FIREBASE NOT CONFIGURED WARNING -->
+  <div id="firebase-config-warn" style="display:none;background:rgba(217,64,64,0.1);border-bottom:2px solid var(--coral);padding:10px 20px;font-size:13px;color:var(--coral);text-align:center;">
+    ⚠️ 尚未設定 Firebase — 跨裝置功能無法使用。<a href="#" onclick="showFirebaseSetupWizard()" style="color:var(--coral);font-weight:700;margin-left:8px;">🔧 點此設定（不需改程式碼）</a>
+  </div>
+
+  <!-- SESSION BAR (shown when session active) -->
+  <div class="session-bar" id="session-bar" style="display:none;">
+    <div class="room-badge"><span class="room-label">房間碼</span><span id="session-room-code">------</span></div>
+    <span id="db-status"><span class="disconnected-dot"></span> 未連線</span>
+    <div class="session-url" id="session-url-short"></div>
+    <button class="btn btn-ghost btn-sm" onclick="showQrPanel()">📱 顯示 QR</button>
+    <button class="btn btn-coral btn-sm" onclick="endSession()">✕ 結束場次</button>
+  </div>
+
+  <!-- START SESSION OVERLAY -->
+  <div class="new-session-overlay" id="new-session-overlay">
+    <div class="new-session-box">
+      <div style="font-size:48px;margin-bottom:14px;">🎯</div>
+      <h2 style="font-size:22px;font-weight:900;color:var(--text);margin-bottom:6px;">面試模擬回饋賽</h2>
+      <p style="font-size:14px;color:var(--text2);margin-bottom:22px;line-height:1.7;">老師端控台 — 請先建立一個新場次，學生透過 QR Code 加入回饋。</p>
+      <div id="firebase-status-msg" class="firebase-warn" style="display:none;"></div>
+      <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:10px;" onclick="createSession()">🚀 建立新場次</button>
+    </div>
+  </div>
+
+  <!-- QR PANEL -->
+  <div class="session-panel-overlay" id="qr-panel-overlay">
+    <div class="session-panel">
+      <div style="font-size:15px;font-weight:900;color:var(--text);margin-bottom:4px;">📱 學生掃碼加入</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">學生用手機掃描下方 QR Code，即可開啟學生回饋頁面並自動加入本場次。</div>
+      <div class="qr-wrap"><img id="qr-canvas" style="width:220px;height:220px;border-radius:10px;border:4px solid var(--teal);" /></div>
+      <div style="font-size:20px;font-weight:900;color:var(--teal);letter-spacing:4px;margin-bottom:10px;" id="qr-room-code-display"></div>
+      <div class="student-url-box" id="qr-url-display"></div>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button class="btn btn-primary" onclick="copyStudentUrl()">📋 複製連結</button>
+        <button class="btn btn-ghost" onclick="closeQrPanel()">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE HELP PANEL -->
+  <div class="session-panel-overlay" id="firebase-help-overlay">
+    <div class="session-panel" style="max-width:500px;text-align:left;">
+      <div style="font-size:16px;font-weight:900;color:var(--text);margin-bottom:16px;">🔧 Firebase 設定說明</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.9;">
+        <div style="font-weight:700;color:var(--text);margin-bottom:4px;">① 前往 Firebase Console</div>
+        <div style="margin-bottom:12px;">開啟 <span style="color:var(--teal);font-weight:700;">console.firebase.google.com</span> → 建立新專案（免費）</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:4px;">② 新增 Realtime Database</div>
+        <div style="margin-bottom:12px;">左側選單 → Build → Realtime Database → 建立資料庫 → 選「測試模式」</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:4px;">③ 取得設定碼</div>
+        <div style="margin-bottom:12px;">專案設定（齒輪）→ 你的應用程式 → 新增網頁應用程式 → 複製 firebaseConfig</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:4px;">④ 貼入 HTML</div>
+        <div style="margin-bottom:12px;">在 teacher.html 和 student.html 找到 <code style="background:var(--border2);padding:2px 5px;border-radius:4px;">PASTE_YOUR_FIREBASE_CONFIG_HERE</code>，替換成你的設定</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:4px;">⑤ 部署到 Netlify</div>
+        <div>把兩個 HTML 拖到 <span style="color:var(--teal);font-weight:700;">app.netlify.com/drop</span> 即完成部署</div>
+      </div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:18px;" onclick="document.getElementById('firebase-help-overlay').classList.remove('show')">關閉</button>
+    </div>
+  </div>
+
+
+  <!-- Flash overlay -->
+  <div id="flash-overlay"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="logo-icon">🎯</div>
+      <div><span class="logo-text">老師控台</span><div style="font-size:11px;color:var(--text3);margin-top:1px;">面試模擬回饋賽</div></div>
+    </div>
+    <nav class="header-nav">
+      <button class="nav-btn active" onclick="showPage('setup')">名單設置</button>
+      <button class="nav-btn" onclick="showPage('groups')">分組結果</button>
+      <button class="nav-btn" onclick="showPage('timer')">計時器</button>
+      <button class="nav-btn" onclick="showPage('guide')">觀察清單</button>
+      <button class="nav-btn" onclick="showPage('collected')">📥 學生回饋</button>
+      <button class="nav-btn" onclick="showPage('log')">📋 紀錄</button>
+    </nav>
+    <div class="header-right">
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="深色/淺色主題">🌙</button>
+      <button class="icon-btn" onclick="enterFullscreen()" title="全螢幕計時器">⛶</button>
+    </div>
+  </header>
+
+  <!-- ═══ PAGE: SETUP ═══ -->
+  <div class="page active" id="page-setup">
+    <div class="section-label">Step 01</div>
+    <h1 class="section-title">匯入名單 &amp; 分組設置</h1>
+    <p class="section-sub">貼上學生姓名或座號，一行一位或以逗號分隔，再設定組別與人數即可隨機分組。</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📋 匯入名單</div>
+        <textarea class="import-area" id="name-input" placeholder="請輸入學生姓名或座號，支援格式：
+• 一行一位（按 Enter 換行）
+• 逗號分隔：01,02,03...
+• 混合：王小明, 陳大華
+         李美玲"></textarea>
+        <div class="flex-row mt-2">
+          <div id="member-count-badge">
+            <span>👥</span><span id="member-count">0</span> 位成員
+          </div>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost btn-sm" onclick="clearAll()">清除</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadSample()">載入範例</button>
+        </div>
+
+        <!-- Absent member management -->
+        <div id="absent-section" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px;">
+            <span style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;">管理缺席成員（點 × 暫時移除）</span>
+            <button class="btn btn-ghost btn-sm" onclick="restoreAllAbsent()" style="font-size:11px;padding:4px 10px;">還原全部</button>
+          </div>
+          <div class="member-manage-area" id="member-chips"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚙️ 分組設定</div>
+        <div class="input-row">
+          <span class="input-label">分組方式</span>
+          <select id="group-mode" onchange="updateGroupMode()" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:14px;padding:7px 12px;outline:none;cursor:pointer;">
+            <option value="byCount">指定每組人數</option>
+            <option value="byGroups">指定組別數量</option>
+          </select>
+        </div>
+        <div id="setting-byCount">
+          <div class="input-row">
+            <span class="input-label">每組人數</span>
+            <input type="number" class="num-input" id="per-group" value="5" min="2" max="20" oninput="calcGroups()">
+            <span class="input-hint">人（建議5人一組）</span>
+          </div>
+          <div id="calc-result" class="input-hint mt-2" style="color:var(--teal);"></div>
+        </div>
+        <div id="setting-byGroups" style="display:none">
+          <div class="input-row">
+            <span class="input-label">組別數量</span>
+            <input type="number" class="num-input" id="num-groups-input" value="4" min="1" max="30" oninput="calcGroups2()">
+            <span class="input-hint">組</span>
+          </div>
+          <div id="calc-result2" class="input-hint mt-2" style="color:var(--teal);"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="input-row">
+          <span class="input-label">面試者角色</span>
+          <span class="input-hint">每組第 1 位成員 = 面試者，其餘為主考官</span>
+        </div>
+        <div class="mt-4">
+          <button class="btn btn-amber btn-lg" onclick="randomAssign()" style="width:100%">
+            🎲 隨機分組
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: GROUPS ═══ -->
+  <div class="page" id="page-groups">
+    <div class="flex-row">
+      <div>
+        <div class="section-label">Step 02</div>
+        <h1 class="section-title">分組結果</h1>
+        <p class="section-sub">可拖曳組員手動調整分組，完成後點「開始計時」進入遊戲。</p>
+      </div>
+    </div>
+    <div class="flex-row mt-2" style="margin-bottom:20px;">
+      <div id="groups-summary" class="status-bar" style="flex:1;margin-bottom:0;">
+        <div class="status-item"><div class="status-dot"></div><span id="sum-total">0 位成員</span></div>
+        <div class="status-item"><div class="status-dot amber"></div><span id="sum-groups">0 組</span></div>
+        <div class="status-item"><div class="status-dot coral"></div><span id="sum-per">每組 0 人</span></div>
+      </div>
+      <button class="btn btn-ghost" onclick="randomAssign()">🔀 重新分組</button>
+      <button class="btn btn-ghost" onclick="printGroups()">🖨️ 列印/匯出</button>
+      <button class="btn btn-primary" onclick="showPage('timer')">▶ 開始計時</button>
+    </div>
+    <div class="groups-grid" id="groups-grid"></div>
+    <div id="no-groups" style="text-align:center;padding:60px 20px;color:var(--text3);">
+      <div style="font-size:42px;margin-bottom:12px;">🎯</div>
+      <div style="font-size:16px;margin-bottom:6px;">尚未分組</div>
+      <div style="font-size:13px;">請先到「名單設置」匯入學生並進行分組</div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: TIMER ═══ -->
+  <div class="page" id="page-timer">
+    <div class="section-label">Step 03</div>
+    <h1 class="section-title">計時器</h1>
+    <p class="section-sub">三個遊戲階段各有獨立倒數計時，時間快到時會發出提醒音效並閃紅光。</p>
+
+    <div class="phase-tabs">
+      <button class="phase-tab active" onclick="selectPhase(1)">
+        <div class="phase-dot"></div>第一階段：實戰模擬
+      </button>
+      <button class="phase-tab" onclick="selectPhase(2)">
+        <div class="phase-dot"></div>第二階段：背對回饋
+      </button>
+      <button class="phase-tab" onclick="selectPhase(3)">
+        <div class="phase-dot"></div>第三階段：轉身對話
+      </button>
+      <button class="phase-tab" onclick="selectPhase(4)">
+        <div class="phase-dot"></div>第四階段：主考官回饋
+      </button>
+    </div>
+
+    <div class="timer-layout">
+      <!-- Main timer -->
+      <div class="card timer-main">
+        <div class="phase-info-badge">
+          <div class="phase-num-dot"></div>
+          <span id="timer-phase-name">第一階段：實戰模擬</span>
+        </div>
+
+        <div class="timer-face" id="timer-face-main">
+          <svg class="timer-svg" viewBox="0 0 260 260">
+            <circle class="timer-circle-bg" cx="130" cy="130" r="115"></circle>
+            <circle class="timer-circle-prog" id="timer-prog" cx="130" cy="130" r="115"
+              stroke-dasharray="722.6" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="timer-digits">
+            <div class="timer-time" id="timer-display">02:00</div>
+            <div class="timer-label-sm" id="timer-status-text">準備開始</div>
+          </div>
+        </div>
+
+        <div class="timer-controls">
+          <button class="btn btn-primary btn-lg" id="btn-start" onclick="startTimer()">▶ 開始</button>
+          <button class="btn btn-ghost btn-lg" id="btn-pause" onclick="pauseTimer()" style="display:none">⏸ 暫停</button>
+          <button class="btn btn-ghost btn-lg" id="btn-resume" onclick="resumeTimer()" style="display:none">▶ 繼續</button>
+          <button class="btn btn-coral btn-lg" id="btn-reset" onclick="resetTimer()">↺ 重設</button>
+        </div>
+
+        <div id="timer-finished-msg" style="display:none;font-size:16px;font-weight:700;color:var(--amber);text-align:center;animation:pulse 1s infinite;">
+          ⏰ 時間到！請進入下一階段
+        </div>
+
+        <!-- Auto-advance -->
+        <div class="auto-advance-bar" id="auto-advance-bar">
+          <label class="toggle-switch">
+            <input type="checkbox" id="auto-advance-toggle" onchange="toggleAutoAdvance()">
+            <span class="toggle-slider"></span>
+          </label>
+          <span>自動進入下一階段</span>
+          <span style="color:var(--text3);font-size:12px;">緩衝</span>
+          <button class="step-btn" onclick="adjustAutoDelay(-1)">−</button>
+          <span id="auto-delay-display" style="font-size:13px;font-weight:700;color:var(--text);min-width:28px;text-align:center;">5秒</span>
+          <button class="step-btn" onclick="adjustAutoDelay(1)">+</button>
+          <label style="display:flex;align-items:center;gap:6px;margin-left:8px;font-size:12px;color:var(--text2);">
+            <input type="checkbox" id="auto-start-toggle" onchange="toggleAutoStart()" style="accent-color:var(--teal);">
+            自動開始計時
+          </label>
+          <div id="auto-countdown-text" style="font-size:12px;margin-left:4px;"></div>
+        </div>
+      </div>
+
+      <!-- Right panel -->
+      <div style="min-width:280px;">
+        <div class="card">
+          <div class="card-title">⏱ 計時設定</div>
+          <div class="settings-row">
+            <span class="settings-label">計時時間</span>
+            <div class="settings-value">
+              <button class="step-btn" onclick="adjustTime(-30)">−</button>
+              <span id="set-time-display">2分00秒</span>
+              <button class="step-btn" onclick="adjustTime(30)">+</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">提醒時間（剩餘）</span>
+            <div class="settings-value">
+              <button class="step-btn" onclick="adjustWarning(-10)">−</button>
+              <span id="set-warn-display">30秒</span>
+              <button class="step-btn" onclick="adjustWarning(10)">+</button>
+            </div>
+          </div>
+          <div class="settings-row" style="margin-bottom:0;">
+            <span class="settings-label">音效提醒</span>
+            <div class="settings-value">
+              <button class="step-btn" id="mute-btn" onclick="toggleMute()" title="開/關音效">🔔</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase-desc-card mt-4" id="phase-desc">
+          <div class="phase-desc-title" id="phase-desc-title">🎤 第一階段：實戰模擬</div>
+          <ul class="phase-desc-list" id="phase-desc-list">
+            <li>面試者面對 4 位主考官進行自我介紹</li>
+            <li>回答經典面試題（如：為什麼我們該錄取你？）</li>
+            <li>主考官觀察眼神、自信度、邏輯與內容</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- All groups roles panel -->
+    <div id="timer-all-groups" style="display:none; margin-top:28px;">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2.5px;color:var(--teal);text-transform:uppercase;">👥 各組角色分配</div>
+        <div id="rotation-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,201,71,0.1);border:1px solid rgba(255,201,71,0.3);border-radius:20px;padding:4px 14px;font-size:12px;color:var(--amber);font-weight:700;"></div>
+        <div style="flex:1;"></div>
+        <button class="btn btn-amber" id="btn-next-interviewee" onclick="confirmNextInterviewee()">
+          👤 換下一位面試者
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="resetRotation()">↺ 重頭開始</button>
+      </div>
+      <div id="timer-all-groups-grid" class="timer-groups-grid"></div>
+      <div id="rotation-done-msg" style="display:none;text-align:center;padding:22px;font-size:15px;font-weight:700;color:var(--teal);background:rgba(0,201,177,0.06);border:1px solid var(--border);border-radius:var(--radius);margin-top:12px;">
+        🎉 所有人都已完成面試！
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: GUIDE ═══ -->
+  <div class="page" id="page-guide">
+    <div class="section-label">觀察清單</div>
+    <h1 class="section-title">主考官觀察引導</h1>
+    <p class="section-sub">第二階段「背對回饋」時，引導主考官依清單討論，回饋表請至「學生回饋」頁面填寫。</p>
+
+    <div class="grid-2">
+      <div>
+        <!-- Interactive checklist -->
+        <div class="obs-list" id="obs-checklist">
+          <div class="obs-item" onclick="toggleObs(this)">
+            <div class="obs-check">✓</div>
+            <div class="obs-text"><strong>第一印象</strong><br>剛才聽完後，你會想錄取他嗎？為什麼？用一個形容詞形容剛才的感受。</div>
+          </div>
+          <div class="obs-item" onclick="toggleObs(this)">
+            <div class="obs-check">✓</div>
+            <div class="obs-text"><strong>非語言訊息</strong><br>他的眼神有閃躲嗎？手勢會不會太多？站姿是否穩定有自信？</div>
+          </div>
+          <div class="obs-item" onclick="toggleObs(this)">
+            <div class="obs-check">✓</div>
+            <div class="obs-text"><strong>內容記憶點</strong><br>剛才那段話，你現在還記得哪一個關鍵字？能說出最有力的一句話嗎？</div>
+          </div>
+          <div class="obs-item" onclick="toggleObs(this)">
+            <div class="obs-check">✓</div>
+            <div class="obs-text"><strong>改進建議</strong><br>如果他要更有說服力，應該多加點什麼？哪個部分可以說得更清楚？</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--text3);">點擊項目即可勾選 ／ <button onclick="resetObs()" style="background:none;border:none;color:var(--teal);cursor:pointer;font-size:12px;padding:0;">重置</button></div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">🎮 遊戲流程提醒</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.9;">
+            <div style="display:flex;gap:10px;margin-bottom:12px;padding:10px;background:rgba(255,201,71,0.06);border:1px solid rgba(255,201,71,0.15);border-radius:8px;">
+              <span style="color:var(--amber);font-weight:700;min-width:20px;">①</span>
+              <span><strong style="color:var(--text);">實戰模擬（2-3分鐘）</strong><br>面試者對主考官進行自我介紹或回答面試題</span>
+            </div>
+            <div style="display:flex;gap:10px;margin-bottom:12px;padding:10px;background:rgba(0,201,177,0.06);border:1px solid rgba(0,201,177,0.15);border-radius:8px;">
+              <span style="color:var(--teal);font-weight:700;min-width:20px;">②</span>
+              <span><strong style="color:var(--text);">背對回饋（4分鐘）</strong><br>面試者轉身背對，主考官依清單旁若無人地討論，面試者只聽不說</span>
+            </div>
+            <div style="display:flex;gap:10px;padding:10px;background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.15);border-radius:8px;">
+              <span style="color:var(--coral);font-weight:700;min-width:20px;">③</span>
+              <span><strong style="color:var(--text);">轉身對話（2分鐘）</strong><br>面試者轉回，分享「哪一部分最讓我意外？」不需要反駁</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;background:rgba(33,150,201,0.05);border-color:rgba(33,150,201,0.2);">
+          <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+            💡 填寫回饋請切換到 <strong style="color:var(--teal);">學生回饋</strong> 頁面，可寫三明治回饋、贅詞統計，並查看學生端提交的回饋。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teacher tips -->
+    <div class="divider" style="margin-top:32px;"></div>
+    <div class="section-label" style="margin-top:24px;">教學補充</div>
+    <h2 style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:4px;line-height:1.2;">給老師的三個小技巧</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:22px;">可在活動前帶著學生一起閱讀，讓回饋品質更有深度。</p>
+    <div class="grid-3" style="gap:18px;">
+      <div class="card" style="border-color:rgba(255,201,71,0.35);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,201,71,0.15);border:1px solid rgba(255,201,71,0.35);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🥪</div>
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--amber);text-transform:uppercase;margin-bottom:2px;">技巧 01 · 評論公式</div>
+            <div style="font-size:15px;font-weight:900;color:var(--text);">三明治回饋法</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px;">規定主考官必須依照以下結構給出意見，避免無效社交。</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:rgba(0,201,177,0.07);border:1px solid rgba(0,201,177,0.2);border-radius:8px;">
+            <span style="font-size:16px;flex-shrink:0;margin-top:1px;">👍</span>
+            <div><div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:2px;">優點</div><div style="font-size:12px;color:var(--text2);">說一個具體觀察到的亮點</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:rgba(255,107,107,0.07);border:1px solid rgba(255,107,107,0.2);border-radius:8px;">
+            <span style="font-size:16px;flex-shrink:0;margin-top:1px;">🎯</span>
+            <div><div style="font-size:11px;font-weight:700;color:var(--coral);margin-bottom:2px;">具體改進點</div><div style="font-size:12px;color:var(--text2);">說一個可以立即改善的行為</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:rgba(255,201,71,0.07);border:1px solid rgba(255,201,71,0.2);border-radius:8px;">
+            <span style="font-size:16px;flex-shrink:0;margin-top:1px;">💪</span>
+            <div><div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:2px;">鼓勵</div><div style="font-size:12px;color:var(--text2);">以正向語氣收尾，增強信心</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(255,107,107,0.35);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.35);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🔍</div>
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--coral);text-transform:uppercase;margin-bottom:2px;">技巧 02 · 第二階段加分題</div>
+            <div style="font-size:15px;font-weight:900;color:var(--text);">雜訊干擾觀察</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px;">請主考官額外討論：<span style="color:var(--text);font-weight:600;">「他的內容有沒有哪裡聽起來很卡？」</span></p>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;">
+          <span style="padding:4px 10px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);border-radius:20px;font-size:12px;color:var(--coral);font-weight:700;">然後…</span>
+          <span style="padding:4px 10px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);border-radius:20px;font-size:12px;color:var(--coral);font-weight:700;">那個…</span>
+          <span style="padding:4px 10px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);border-radius:20px;font-size:12px;color:var(--coral);font-weight:700;">呃…</span>
+          <span style="padding:4px 10px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);border-radius:20px;font-size:12px;color:var(--coral);font-weight:700;">就是…</span>
+          <span style="padding:4px 10px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);border-radius:20px;font-size:12px;color:var(--coral);font-weight:700;">嗯…</span>
+        </div>
+        <div style="padding:10px 12px;background:rgba(255,107,107,0.06);border-left:3px solid var(--coral);border-radius:0 6px 6px 0;font-size:12px;color:var(--text2);line-height:1.6;">
+          💡 贅詞計數器在「學生回饋」頁面，面試者說了幾次就按幾次。
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(0,201,177,0.35);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,201,177,0.1);border:1px solid rgba(0,201,177,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🔄</div>
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--teal);text-transform:uppercase;margin-bottom:2px;">技巧 03 · 設計理念</div>
+            <div style="font-size:15px;font-weight:900;color:var(--text);">為什麼要練習背對背？</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px;">讓面試者從<strong style="color:var(--amber);">「主角」</strong>變成<strong style="color:var(--teal);">「旁觀者」</strong>，用第三人稱的角度來審視自己的表現。</p>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);"><div style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;"></div>聽到主考官的討論，卻無法馬上辯解，訓練「接受反饋」的能力</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);"><div style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;"></div>讓回饋更真實，主考官說話不必顧慮面試者的表情</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);"><div style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;"></div>轉身後的「意外感」往往是最深刻的學習時刻</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: COLLECTED FEEDBACKS ═══ -->
+  <div class="page" id="page-collected">
+    <div class="section-label">學生回饋</div>
+    <h1 class="section-title">收集學生回饋</h1>
+    <p class="section-sub">學生透過學生端提交的三明治回饋與贅詞統計，可依面試者篩選。</p>
+
+<div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title">👤 回饋資訊</div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:var(--text2);">我是（你的姓名）</label>
+            <input type="text" id="student-reviewer-name" placeholder="輸入你的姓名…" style="width:100%;background:var(--input-bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:13px;padding:7px 10px;outline:none;margin-top:5px;">
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:var(--text2);">面試者（要回饋的對象）</label>
+            <select class="student-select" id="student-target-name" onchange="onStudentTargetChange()" style="margin-top:5px;">
+              <option value="">請選擇面試者…</option>
+            </select>
+          </div>
+          <div id="student-target-custom-field" style="display:none;margin-bottom:10px;">
+            <label style="font-size:12px;color:var(--text2);">手動輸入面試者</label>
+            <input type="text" id="student-target-custom" placeholder="輸入面試者姓名或座號…"
+              style="width:100%;background:var(--input-bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:13px;padding:7px 10px;outline:none;margin-top:5px;">
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:var(--text2);">第幾輪面試</label>
+            <select class="student-select" id="student-round" style="margin-top:5px;">
+              <option value="第1輪">第1輪</option>
+              <option value="第2輪">第2輪</option>
+              <option value="第3輪">第3輪</option>
+              <option value="第4輪">第4輪</option>
+              <option value="第5輪">第5輪</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Student filler counter -->
+        <div class="card mt-4" style="border-color:rgba(217,64,64,0.3);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div class="card-title" style="margin-bottom:0;">🔢 我的贅詞統計</div>
+            <button class="btn btn-ghost btn-sm" onclick="resetStudentFillers()">重置</button>
+          </div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">聽到一次就按一次</div>
+          <div class="filler-grid" id="student-filler-grid"></div>
+          <div class="filler-total" id="student-filler-total">總計：0 次</div>
+          <div class="custom-filler-row">
+            <input type="text" class="custom-filler-input" id="student-custom-filler-input" placeholder="新增贅詞…" maxlength="10">
+            <button class="btn btn-ghost btn-sm" onclick="addStudentCustomFiller()">＋ 新增</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <!-- Student sandwich feedback -->
+        <div class="card">
+          <div class="card-title">🥪 三明治回饋</div>
+          <div class="sandwich-section section-pos" style="margin-top:8px;">
+            <span class="sandwich-icon">👍</span>
+            <div style="flex:1">
+              <div class="sandwich-label">優點（一個具體亮點）</div>
+              <textarea class="sandwich-textarea" id="student-fb-pos" placeholder="例如：眼神接觸很自然，讓人感覺有自信…"></textarea>
+            </div>
+          </div>
+          <div class="sandwich-section section-imp">
+            <span class="sandwich-icon">🎯</span>
+            <div style="flex:1">
+              <div class="sandwich-label">具體改進點</div>
+              <textarea class="sandwich-textarea" id="student-fb-imp" placeholder="例如：語速可以放慢，「然後」出現了很多次…"></textarea>
+            </div>
+          </div>
+          <div class="sandwich-section section-enc">
+            <span class="sandwich-icon">💪</span>
+            <div style="flex:1">
+              <div class="sandwich-label">鼓勵語</div>
+              <textarea class="sandwich-textarea" id="student-fb-enc" placeholder="例如：整體表達很清楚，繼續練習一定會更好！…"></textarea>
+            </div>
+          </div>
+          <div class="flex-row mt-2">
+            <button class="btn btn-primary" onclick="generateStudentResult()">✅ 產生回饋摘要</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearStudentFeedback()">清除</button>
+          </div>
+        </div>
+
+        <!-- Result preview -->
+        <div class="card mt-4" id="student-result-card" style="display:none;">
+          <div class="card-title">📋 回饋摘要（可複製傳給面試者）</div>
+          <div class="submit-result-box" id="student-result-box"></div>
+          <div class="flex-row mt-2">
+            <button class="btn btn-primary btn-sm" onclick="copyStudentResult()">📋 複製回饋</button>
+            <button class="btn btn-amber btn-sm" onclick="shareStudentResult()">📤 傳送回饋報告</button>
+            <button class="btn btn-ghost btn-sm" onclick="saveStudentResultToLog()">💾 存入紀錄</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:28px 0;"></div>
+
+    <div class="flex-row" style="margin-bottom:18px;gap:10px;">
+      <input type="text" id="collected-filter" placeholder="篩選面試者名稱…"
+        oninput="renderCollected()"
+        style="flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;
+               color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:14px;padding:9px 13px;outline:none;">
+      <button class="btn btn-ghost" onclick="renderCollected()">🔄 重新整理</button>
+      <button class="btn btn-ghost" onclick="copyAllCollected()">📋 全部複製</button>
+      <button class="btn btn-coral btn-sm" onclick="clearCollected()">🗑️ 清除</button>
+    </div>
+    <div id="collected-summary" style="margin-bottom:14px;"></div>
+    <div id="collected-list"></div>
+  </div>
+
+  <!-- ═══ PAGE: LOG ═══ -->
+  <div class="page" id="page-log">
+    <div class="section-label">紀錄</div>
+    <h1 class="section-title">活動紀錄</h1>
+    <p class="section-sub">本次課堂活動的完整紀錄，包含面試紀錄與回饋內容。</p>
+
+    <!-- 出席統計卡 -->
+    <div id="attendance-card" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;">👥 出席統計</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+        <div style="flex:1;min-width:80px;background:rgba(33,150,201,0.08);border:1px solid rgba(33,150,201,0.3);border-radius:10px;padding:10px 14px;text-align:center;">
+          <div style="font-size:26px;font-weight:900;color:var(--teal);" id="att-online-count">0</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">在線人數</div>
+        </div>
+        <div style="flex:1;min-width:80px;background:rgba(217,64,64,0.07);border:1px solid rgba(217,64,64,0.3);border-radius:10px;padding:10px 14px;text-align:center;">
+          <div style="font-size:26px;font-weight:900;color:var(--coral);" id="att-absent-count">0</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">缺席人數</div>
+        </div>
+        <div style="flex:1;min-width:80px;background:rgba(224,123,0,0.07);border:1px solid rgba(224,123,0,0.3);border-radius:10px;padding:10px 14px;text-align:center;">
+          <div style="font-size:26px;font-weight:900;color:var(--amber);" id="att-total-count">0</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">名單總人數</div>
+        </div>
+      </div>
+      <div id="att-absent-list" style="font-size:12px;color:var(--text2);line-height:1.8;"></div>
+    </div>
+    <div class="flex-row" style="margin-bottom:20px;">
+      <span id="log-count-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(33,150,201,0.08);border:1px solid var(--teal);border-radius:20px;padding:4px 14px;font-size:13px;color:var(--teal);font-weight:700;">
+        📋 0 筆紀錄
+      </span>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost" onclick="refreshLog()">🔄 重新整理紀錄</button>
+      <button class="btn btn-ghost" onclick="copyLog()">📋 複製所有紀錄</button>
+      <button class="btn btn-coral btn-sm" onclick="clearLog()">清除紀錄</button>
+    </div>
+    <div id="log-list">
+      <div style="text-align:center;padding:60px 20px;color:var(--text3);">
+        <div style="font-size:36px;margin-bottom:12px;">📋</div>
+        <div style="font-size:15px;">尚無紀錄</div>
+        <div style="font-size:13px;margin-top:6px;">開始面試後，這裡會顯示活動紀錄</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-backdrop" id="confirm-modal">
+    <div class="modal">
+      <div class="modal-icon" id="modal-icon">⚠️</div>
+      <div class="modal-title" id="modal-title">確認操作</div>
+      <div class="modal-msg" id="modal-msg">確定要執行此操作嗎？</div>
+      <div class="modal-btns">
+        <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+        <button class="btn btn-amber" id="modal-confirm-btn" onclick="modalConfirmAction()">確認</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <button class="mobile-nav-btn" id="mnav-collected" onclick="showPage('collected')">
+      <span class="mnav-icon">📥</span><span>學生回饋</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnav-timer" onclick="showPage('timer')">
+      <span class="mnav-icon">⏱</span><span>計時</span>
+    </button>
+    <button class="mobile-nav-btn active" id="mnav-groups" onclick="showPage('groups')">
+      <span class="mnav-icon">👥</span><span>分組</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnav-more" onclick="toggleMobileMore()">
+      <span class="mnav-icon">⋯</span><span>更多</span>
+    </button>
+  </nav>
+
+  <!-- Mobile More Menu -->
+  <div id="mobile-more-menu" style="display:none;position:fixed;bottom:62px;left:0;right:0;z-index:199;
+    background:var(--header-bg);border-top:1px solid var(--border);backdrop-filter:blur(12px);
+    padding:8px 12px 10px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button class="mobile-nav-btn" id="mnav-setup" onclick="showPage('setup');toggleMobileMore();"
+        style="flex-direction:row;gap:8px;justify-content:flex-start;padding:10px 14px;
+        border-radius:10px;border:1px solid var(--border2);background:var(--card);">
+        <span class="mnav-icon">📋</span><span style="font-size:13px;">名單設置</span>
+      </button>
+      <button class="mobile-nav-btn" id="mnav-guide" onclick="showPage('guide');toggleMobileMore();"
+        style="flex-direction:row;gap:8px;justify-content:flex-start;padding:10px 14px;
+        border-radius:10px;border:1px solid var(--border2);background:var(--card);">
+        <span class="mnav-icon">🔍</span><span style="font-size:13px;">觀察清單</span>
+      </button>
+      <button class="mobile-nav-btn" id="mnav-log" onclick="showPage('log');toggleMobileMore();"
+        style="flex-direction:row;gap:8px;justify-content:flex-start;padding:10px 14px;
+        border-radius:10px;border:1px solid var(--border2);background:var(--card);">
+        <span class="mnav-icon">📒</span><span style="font-size:13px;">紀錄</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN CLOSE BTN (outside overlay to avoid stacking context issues) -->
+  <button class="fs-close-btn" id="fs-close-btn" onclick="exitFullscreen()" style="display:none;">✕ 結束全螢幕</button>
+  <div class="fs-esc-hint" id="fs-esc-hint" style="display:none;">按 ESC 或點右上角關閉</div>
+
+  <!-- FULLSCREEN OVERLAY -->
+  <div class="fullscreen-overlay" id="fullscreen-overlay">
+    <div class="fs-phase-name" id="fs-phase-name">第一階段：實戰模擬</div>
+    <div class="fs-timer-face" id="fs-timer-face">
+      <svg class="timer-svg" viewBox="0 0 260 260">
+        <circle class="timer-circle-bg" cx="130" cy="130" r="115"></circle>
+        <circle class="timer-circle-prog" id="fs-timer-prog" cx="130" cy="130" r="115"
+          stroke-dasharray="722.6" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="timer-digits">
+        <div class="fs-timer-time timer-time" id="fs-timer-display">02:00</div>
+        <div class="fs-status" id="fs-status">準備開始</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+      <button class="btn btn-primary btn-lg" id="fs-btn-start" onclick="startTimer()">▶ 開始</button>
+      <button class="btn btn-ghost btn-lg" id="fs-btn-pause" onclick="pauseTimer()" style="display:none">⏸ 暫停</button>
+      <button class="btn btn-ghost btn-lg" id="fs-btn-resume" onclick="resumeTimer()" style="display:none">▶ 繼續</button>
+      <button class="btn btn-coral btn-lg" onclick="resetTimer()">↺ 重設</button>
+    </div>
+    <div id="fs-finished" style="display:none;font-size:18px;font-weight:700;color:var(--amber);text-align:center;margin-top:18px;animation:pulse 1s infinite;">
+      ⏰ 時間到！
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+// ════════════════════════════════════════════════════════════════════
+// ★ FIREBASE 設定 — 由 UI 設定精靈自動管理（存入 localStorage）
+// ════════════════════════════════════════════════════════════════════
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBVyKP-j7_CP3SRf8h3TYhZXLQuTdx0YQ0",
+  authDomain: "project-4198352826191193750.firebaseapp.com",
+  databaseURL: "https://project-4198352826191193750-default-rtdb.firebaseio.com",
+  projectId: "project-4198352826191193750",
+  storageBucket: "project-4198352826191193750.firebasestorage.app",
+  messagingSenderId: "221540560321",
+  appId: "1:221540560321:web:8239153fe386e089b29340",
+  measurementId: "G-MG6RLJQHZT"
+};
+
+function _loadSavedFirebaseConfig() {
+  try {
+    const raw = localStorage.getItem('firebase_config_v1');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return DEFAULT_FIREBASE_CONFIG;
+}
+const FIREBASE_CONFIG = _loadSavedFirebaseConfig();
+
+const STUDENT_BASE_URL = null;
+
+// ─── Firebase Init ────────────────────────────────────────────────
+let db = null;
+let currentRoom = null;
+let feedbackListener = null;
+let activityListener = null;
+let studentsListener = null;
+let onlineSeats = new Set();
+let allFeedbacks = [];
+let seenActivityKeys = new Set();
+let lastActivityBySeat = new Map();
+let isFirebaseOk = false;
+let pendingStudentFeedback = null;
+
+function initFirebase() {
+  if (!FIREBASE_CONFIG) {
+    document.getElementById('firebase-config-warn').style.display = '';
+    document.getElementById('firebase-status-msg').style.display = '';
+    document.getElementById('firebase-status-msg').innerHTML =
+      '⚠️ 尚未設定 Firebase。<br>點此快速設定：<a href="#" onclick="showFirebaseSetupWizard()" style="color:var(--coral);">🔧 開啟設定精靈 →</a>';
+    return;
+  }
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    isFirebaseOk = true;
+    // Check connection
+    db.ref('.info/connected').on('value', snap => {
+      const el = document.getElementById('db-status');
+      if (!el) return;
+      el.innerHTML = snap.val()
+        ? '<span class="connected-dot"></span> <span style="color:#4caf50;font-weight:700;">已連線</span>'
+        : '<span class="disconnected-dot"></span> 連線中…';
+    });
+  } catch(e) {
+    console.error('Firebase init error', e);
+    document.getElementById('firebase-config-warn').style.display = '';
+  }
+}
+
+// ─── SESSION MANAGEMENT ───────────────────────────────────────────
+function genRoomCode() {
+  return Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6).padEnd(6, '0');
+}
+
+function getStudentUrl(roomCode) {
+  if (STUDENT_BASE_URL) {
+    const url = new URL(STUDENT_BASE_URL, window.location.href);
+    url.searchParams.set('room', roomCode);
+    return url.toString();
+  }
+
+  if (window.location.protocol === 'file:') {
+    return '';
+  }
+
+  const url = new URL('student.html', window.location.href);
+  url.searchParams.set('room', roomCode);
+  return url.toString();
+}
+
+function getStudentUrlMessage() {
+  return '目前是用本機檔案開啟，手機無法掃描 file:// 連結。請先把 index.html、teacher.html、student.html 部署到 Netlify 或網站空間，再用部署後的 teacher.html 產生 QR Code。';
+}
+
+function setQrImage(qrImg, url) {
+  if (window.QRCode && QRCode.toDataURL) {
+    QRCode.toDataURL(url, {
+      width: 220,
+      margin: 1,
+      color: { dark: '#1a7aaa', light: '#ffffff' }
+    }, (err, dataUrl) => {
+      qrImg.src = err
+        ? 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=1a7aaa&bgcolor=ffffff&data=' + encodeURIComponent(url)
+        : dataUrl;
+    });
+  } else {
+    qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=1a7aaa&bgcolor=ffffff&data=' + encodeURIComponent(url);
+  }
+}
+
+function createSession() {
+  const code = genRoomCode();
+  activateRoom(code);
+}
+
+function resumeSession() {
+  const code = document.getElementById('resume-code-input').value.trim().toUpperCase();
+  if (code.length < 4) { showToast('請輸入房間碼'); return; }
+  activateRoom(code);
+  if (db) {
+    db.ref('rooms/' + code + '/groups').once('value', snap => {
+      const g = snap.val();
+      if (g && Array.isArray(g)) { groups = g; renderGroups(); renderTimerGroupSelector(); refreshStudentTargetList(); showToast('已載入上次分組'); }
+    });
+    db.ref('rooms/' + code + '/rotation').once('value', snap => {
+      if (snap.val() !== null) currentRotation = snap.val();
+      refreshStudentTargetList();
+    });
+  }
+}
+
+function activateRoom(code) {
+  currentRoom = code;
+  seenActivityKeys = new Set();
+  lastActivityBySeat = new Map();
+  document.getElementById('new-session-overlay').style.display = 'none';
+  document.getElementById('session-bar').style.display = 'flex';
+  document.getElementById('session-room-code').textContent = code;
+  const url = getStudentUrl(code);
+  document.getElementById('session-url-short').textContent = url || getStudentUrlMessage();
+  // Start listening for feedbacks
+  startFeedbackListener();
+  startActivityListener();
+  startStudentsListener();
+  showToast('🎉 場次已建立！房間碼：' + code);
+}
+
+function endSession() {
+  if (!confirm('確定要結束這個場次嗎？')) return;
+  if (feedbackListener) { db && db.ref('rooms/' + currentRoom + '/feedbacks').off('value', feedbackListener); feedbackListener = null; }
+  if (activityListener) { db && db.ref('rooms/' + currentRoom + '/activity').off('child_added', activityListener); activityListener = null; }
+  if (studentsListener) { db && db.ref('rooms/' + currentRoom + '/students').off('value', studentsListener); studentsListener = null; }
+  if (attendanceRefreshTimer) { clearInterval(attendanceRefreshTimer); attendanceRefreshTimer = null; }
+  onlineSeats = new Set();
+  studentsRawData = {};
+  seenActivityKeys.clear();
+  currentRoom = null;
+  document.getElementById('session-bar').style.display = 'none';
+  document.getElementById('new-session-overlay').style.display = 'flex';
+  allFeedbacks = [];
+}
+
+function showQrPanel() {
+  if (!currentRoom) return;
+  const url = getStudentUrl(currentRoom);
+  document.getElementById('qr-room-code-display').textContent = '房間碼：' + currentRoom;
+  const qrImg = document.getElementById('qr-canvas');
+  if (!url) {
+    qrImg.removeAttribute('src');
+    qrImg.style.display = 'none';
+    document.getElementById('qr-url-display').textContent = getStudentUrlMessage();
+  } else {
+    qrImg.style.display = '';
+    document.getElementById('qr-url-display').textContent = url;
+    setQrImage(qrImg, url);
+  }
+  document.getElementById('qr-panel-overlay').classList.add('show');
+}
+
+function closeQrPanel() { document.getElementById('qr-panel-overlay').classList.remove('show'); }
+
+function copyStudentUrl() {
+  const url = getStudentUrl(currentRoom);
+  if (!url) { showToast('請先部署到網站後再複製學生連結'); return; }
+  navigator.clipboard.writeText(url).then(() => showToast('連結已複製！'));
+}
+
+function showFirebaseHelp() {
+  document.getElementById('firebase-help-overlay').classList.add('show');
+}
+
+// ─── FIREBASE DATA SYNC ───────────────────────────────────────────
+function startFeedbackListener() {
+  if (!db || !currentRoom) return;
+  if (feedbackListener) db.ref('rooms/' + currentRoom + '/feedbacks').off('value', feedbackListener);
+  feedbackListener = db.ref('rooms/' + currentRoom + '/feedbacks').on('value', snap => {
+    const data = snap.val() || {};
+    allFeedbacks = Object.values(data).sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
+    // Update badge on mobile nav
+    const el = document.getElementById('mnav-collected');
+    if (el && allFeedbacks.length > 0) el.querySelector('span:first-child').textContent = '📥' + allFeedbacks.length;
+    // If currently viewing collected page, refresh
+    if (document.getElementById('page-collected').classList.contains('active')) renderCollected();
+  });
+}
+
+function startActivityListener() {
+  if (!db || !currentRoom) return;
+  if (activityListener) db.ref('rooms/' + currentRoom + '/activity').off('child_added', activityListener);
+  activityListener = db.ref('rooms/' + currentRoom + '/activity').limitToLast(80).on('child_added', snap => {
+    addActivityToLog(snap.key, snap.val());
+  });
+}
+
+let studentsRawData = {};  // keep raw snapshot for periodic recheck
+let attendanceRefreshTimer = null;
+const HEARTBEAT_TIMEOUT_MS = 15000; // 超過 15 秒沒心跳 → 視為離線（心跳每 5 秒一次）
+
+function startStudentsListener() {
+  if (!db || !currentRoom) return;
+  if (studentsListener) { db.ref('rooms/' + currentRoom + '/students').off('value', studentsListener); studentsListener = null; }
+  if (attendanceRefreshTimer) { clearInterval(attendanceRefreshTimer); attendanceRefreshTimer = null; }
+  studentsListener = db.ref('rooms/' + currentRoom + '/students').on('value', snap => {
+    studentsRawData = snap.val() || {};
+    rebuildOnlineSeats();
+    updateAttendanceCard();
+  });
+  // 每 10 秒重算一次，捕捉心跳超時但 onDisconnect 尚未觸發的情況
+  attendanceRefreshTimer = setInterval(() => {
+    rebuildOnlineSeats();
+    updateAttendanceCard();
+  }, 10000);
+}
+
+function rebuildOnlineSeats() {
+  onlineSeats = new Set();
+  const now = Date.now();
+  Object.values(studentsRawData).forEach(s => {
+    if (!s || !s.seat) return;
+    if (s.disconnected) return;                          // 已明確標記斷線
+    if (s.connected === false) return;                   // onDisconnect 已觸發
+    const lastSeen = Number(s.lastSeen || s.joinedAt || 0);
+    if (lastSeen && now - lastSeen > HEARTBEAT_TIMEOUT_MS) return; // 心跳超時
+    onlineSeats.add(String(s.seat).trim());
+  });
+}
+
+function updateAttendanceCard() {
+  const card = document.getElementById('attendance-card');
+  if (!card) return;
+  if (members.length === 0) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const normM = m => String(m).trim().replace(/號$/i, '').replace(/^座號\s*/i, '');
+  const total = members.length;
+  const onlineCount = members.filter(m => onlineSeats.has(normM(m))).length;
+  const absentList = members.filter(m => !onlineSeats.has(normM(m)));
+  document.getElementById('att-total-count').textContent = total;
+  document.getElementById('att-online-count').textContent = onlineCount;
+  document.getElementById('att-absent-count').textContent = absentList.length;
+  const absentEl = document.getElementById('att-absent-list');
+  if (absentList.length === 0) {
+    absentEl.innerHTML = '<span style="color:#4caf50;font-weight:700;">✅ 全員到齊！</span>';
+  } else {
+    absentEl.innerHTML = '<span style="font-weight:700;color:var(--coral);">缺席座號：</span>' +
+      absentList.map(m => `<span style="display:inline-block;margin:2px 4px;padding:2px 10px;border-radius:12px;background:rgba(217,64,64,0.1);border:1px solid rgba(217,64,64,0.3);color:var(--coral);font-weight:700;">${m}</span>`).join('');
+  }
+}
+
+function addActivityToLog(key, item) {
+  if (key && seenActivityKeys.has(key)) return false;
+  if (!item || !item.seat) return false;
+
+  const seat = String(item.seat).trim();
+  const rawType = item.type === 'leave' ? 'leave' : 'join';
+  const lastType = lastActivityBySeat.get(seat);
+  if (lastType === rawType) {
+    if (key) seenActivityKeys.add(key);
+    return false;
+  }
+
+  if (key) seenActivityKeys.add(key);
+  lastActivityBySeat.set(seat, rawType);
+  const type = rawType === 'leave' ? '學生離開' : '學生加入';
+  const detail = `座號 ${seat}`;
+  const time = item.time || new Date(item.timestamp || Date.now()).toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  addLog(type, detail, time);
+  return true;
+}
+
+function refreshLog() {
+  if (!db || !currentRoom) {
+    showToast('目前尚未連線到場次');
+    return;
+  }
+  db.ref('rooms/' + currentRoom + '/activity').limitToLast(80).once('value', snap => {
+    let added = 0;
+    const rows = [];
+    snap.forEach(child => rows.push({ key: child.key, value: child.val() }));
+    rows
+      .sort((a, b) => (a.value?.timestamp || 0) - (b.value?.timestamp || 0))
+      .forEach(row => { if (addActivityToLog(row.key, row.value)) added++; });
+    renderLog();
+    showToast(added ? `已更新 ${added} 筆紀錄` : '紀錄已是最新');
+  }).catch(() => showToast('重新整理失敗，請稍後再試'));
+}
+
+// ─── STATE ───────────────────────────────────────
+let members = [];
+let absentMembers = new Set();
+let groups = [];
+let currentPhase = 1;
+let currentGroupIndex = 0;
+let currentRotation = 0;
+let timerInterval = null;
+let timerSeconds = 120;
+let totalSeconds = 120;
+let warningSeconds = 30;
+let isMuted = false;
+let timerRunning = false;
+let timerPaused = false;
+let isDarkMode = false;
+let isFullscreen = false;
+let fullscreenHintTimer = null;
+let autoAdvanceEnabled = false;
+let autoStartEnabled = false;
+let autoAdvanceDelay = 5;
+let autoAdvanceCountdown = null;
+let sessionLog = [];
+let pendingModalAction = null;
+let isStudentMode = false;  // NEW: role mode
+
+// Filler words — use index-based IDs to avoid Chinese character regex issues
+let fillerWords = ['然後', '那個', '呃', '就是', '嗯'];
+let fillerCounts = {};
+fillerWords.forEach(w => fillerCounts[w] = 0);
+
+// Student mode filler words (independent)
+let studentFillerWords = ['然後', '那個', '呃', '就是', '嗯'];
+let studentFillerCounts = {};
+studentFillerWords.forEach(w => studentFillerCounts[w] = 0);
+
+const phaseDefaults = {
+  1: { time: 120, warning: 30, name: '第一階段：實戰模擬', desc: [
+    '面試者面對 4 位主考官進行自我介紹',
+    '回答經典面試題（如：為什麼我們該錄取你？）',
+    '主考官觀察眼神、自信度、邏輯與內容'
+  ]},
+  2: { time: 240, warning: 30, name: '第二階段：背對回饋', desc: [
+    '面試者說完後，轉身背對大家',
+    '面試者保持安靜，不論聽到什麼都不能解釋或回頭',
+    '4 位主考官依觀察清單旁若無人地討論',
+    '可使用「觀察清單」頁面的問題引導討論'
+  ]},
+  3: { time: 120, warning: 30, name: '第三階段：轉身對話', desc: [
+    '面試者轉回正面',
+    '分享：「我剛剛聽到的討論中，哪一部分最讓我意外？」',
+    '面試者不需要反駁，只是分享感受與收穫'
+  ]},
+  4: { time: 180, warning: 30, name: '第四階段：主考官回饋', desc: [
+    '主考官與學生使用學生回饋頁填寫三明治回饋',
+    '確認面試者姓名或座號選擇正確',
+    '完成後按「傳送回饋報告」，讓面試者可在學生端查詢'
+  ]}
+};
+
+const phaseSettings = {
+  1: { time: 120, warning: 30 },
+  2: { time: 240, warning: 30 },
+  3: { time: 120, warning: 30 },
+  4: { time: 180, warning: 30 }
+};
+
+// ─── AUDIO ───────────────────────────────────────
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let ctx = null;
+
+function getCtx() {
+  if (!ctx) ctx = new AudioCtx();
+  return ctx;
+}
+
+function beep(freq, dur, vol, type='sine') {
+  if (isMuted) return;
+  try {
+    const ac = getCtx();
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, ac.currentTime);
+    g.gain.setValueAtTime(vol, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+    o.start(ac.currentTime);
+    o.stop(ac.currentTime + dur);
+  } catch(e) {}
+}
+
+function playStartSound() {
+  try {
+    const ac = getCtx();
+    const t = ac.currentTime;
+    function tone(freq, vol, start, dur) {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.connect(g); g.connect(ac.destination);
+      o.frequency.setValueAtTime(freq, start);
+      g.gain.setValueAtTime(0, start);
+      g.gain.linearRampToValueAtTime(vol, start + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+      o.start(start); o.stop(start + dur);
+    }
+    tone(523, 0.55, t, 0.8);
+    tone(1046, 0.12, t, 0.6);
+  } catch(e) {}
+}
+
+function playWarningSound() {
+  beep(880, 0.15, 0.4);
+  setTimeout(() => beep(880, 0.15, 0.4), 200);
+  setTimeout(() => beep(1100, 0.25, 0.5), 450);
+}
+
+function playFinishSound() {
+  beep(523, 0.2, 0.5);
+  setTimeout(() => beep(659, 0.2, 0.5), 220);
+  setTimeout(() => beep(784, 0.2, 0.5), 440);
+  setTimeout(() => beep(1047, 0.5, 0.6), 660);
+}
+
+function playTickSound() {
+  beep(440, 0.05, 0.15, 'square');
+}
+
+// ─── THEME ───────────────────────────────────────
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  document.body.classList.toggle('dark-mode', isDarkMode);
+  document.getElementById('theme-btn').textContent = isDarkMode ? '☀️' : '🌙';
+  showToast(isDarkMode ? '已切換深色主題' : '已切換淺色主題');
+}
+
+// ─── PAGES ───────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  const map = {setup:0, groups:1, timer:2, guide:3, collected:4, log:5};
+  if (map[id] !== undefined) btns[map[id]].classList.add('active');
+  if (id === 'timer') renderTimerGroupSelector();
+  if (id === 'collected') { renderCollected(); refreshStudentTargetList(); renderStudentFillerGrid(); }
+  if (id === 'log') { renderLog(); updateAttendanceCard(); }
+  // Mobile nav highlight — simplified 3+more layout
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  const primaryPages = {collected:'mnav-collected', timer:'mnav-timer', groups:'mnav-groups'};
+  if (primaryPages[id]) {
+    const el = document.getElementById(primaryPages[id]);
+    if (el) el.classList.add('active');
+  } else {
+    // setup/guide/log are under "more"
+    const el = document.getElementById('mnav-more');
+    if (el) el.classList.add('active');
+  }
+  // Also update hidden more-menu buttons active state
+  ['mnav-setup','mnav-guide','mnav-log'].forEach(bid => {
+    const b = document.getElementById(bid);
+    if (b) b.classList.remove('active');
+  });
+  const moreMap = {setup:'mnav-setup', guide:'mnav-guide', log:'mnav-log'};
+  if (moreMap[id]) { const el = document.getElementById(moreMap[id]); if(el) el.classList.add('active'); }
+}
+
+function toggleMobileMore() {
+  const menu = document.getElementById('mobile-more-menu');
+  const btn = document.getElementById('mnav-more');
+  const isOpen = menu.style.display !== 'none';
+  menu.style.display = isOpen ? 'none' : '';
+  if (!isOpen) btn.classList.add('active');
+  else {
+    // Only keep active if current page is a "more" page
+    const activeMore = ['setup','guide','log'].some(id =>
+      document.getElementById('page-'+id)?.classList.contains('active'));
+    if (!activeMore) btn.classList.remove('active');
+  }
+}
+
+// ─── SETUP ───────────────────────────────────────
+document.getElementById('name-input').addEventListener('input', function() {
+  parseMembers();
+  calcGroups();
+});
+
+function parseMembers() {
+  const raw = document.getElementById('name-input').value;
+  const parts = raw.split(/[\n,，、；;]+/).map(s => s.trim()).filter(s => s.length > 0);
+  members = [...new Set(parts)];
+  document.getElementById('member-count').textContent = members.filter(m => !absentMembers.has(m)).length;
+  renderMemberChips();
+  calcGroups();
+  try { localStorage.setItem('ifs_members', JSON.stringify(members)); } catch(e) {}
+  updateAttendanceCard();
+  return members;
+}
+
+function restoreMembersFromStorage() {
+  try {
+    const saved = localStorage.getItem('ifs_members');
+    if (!saved) return;
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed) || parsed.length === 0) return;
+    members = parsed;
+    const nameInput = document.getElementById('name-input');
+    if (nameInput && !nameInput.value.trim()) nameInput.value = parsed.join('\n');
+    document.getElementById('member-count').textContent = members.filter(m => !absentMembers.has(m)).length;
+    renderMemberChips();
+    updateAttendanceCard();
+  } catch(e) {}
+}
+
+function getActiveMembers() {
+  return members.filter(m => !absentMembers.has(m));
+}
+
+function renderMemberChips() {
+  const section = document.getElementById('absent-section');
+  const container = document.getElementById('member-chips');
+  if (members.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  container.innerHTML = members.map(m => `
+    <span class="member-chip ${absentMembers.has(m) ? 'absent' : ''}" data-name="${m}">
+      ${m}
+      <button class="chip-remove" onclick="toggleAbsent('${m}')" title="${absentMembers.has(m) ? '還原' : '標記缺席'}">
+        ${absentMembers.has(m) ? '↩' : '×'}
+      </button>
+    </span>
+  `).join('');
+}
+
+function toggleAbsent(name) {
+  if (absentMembers.has(name)) {
+    absentMembers.delete(name);
+    showToast(`${name} 已還原`);
+  } else {
+    absentMembers.add(name);
+    showToast(`${name} 已標記缺席`);
+  }
+  const active = getActiveMembers();
+  document.getElementById('member-count').textContent = active.length;
+  renderMemberChips();
+  calcGroups();
+}
+
+function restoreAllAbsent() {
+  absentMembers.clear();
+  document.getElementById('member-count').textContent = members.length;
+  renderMemberChips();
+  calcGroups();
+  showToast('已還原所有缺席成員');
+}
+
+function calcGroups() {
+  if (!document.getElementById('setting-byCount')) return;
+  const per = parseInt(document.getElementById('per-group').value) || 5;
+  const active = getActiveMembers();
+  if (active.length === 0) { document.getElementById('calc-result').textContent = ''; return; }
+  const g = Math.ceil(active.length / per);
+  document.getElementById('calc-result').textContent = `→ 預計分成 ${g} 組（最後一組可能不足 ${per} 人）`;
+}
+
+function calcGroups2() {
+  const n = parseInt(document.getElementById('num-groups-input').value) || 4;
+  const active = getActiveMembers();
+  if (active.length === 0) { document.getElementById('calc-result2').textContent = ''; return; }
+  const per = Math.ceil(active.length / n);
+  document.getElementById('calc-result2').textContent = `→ 每組約 ${per} 人`;
+}
+
+function updateGroupMode() {
+  const mode = document.getElementById('group-mode').value;
+  document.getElementById('setting-byCount').style.display = mode === 'byCount' ? '' : 'none';
+  document.getElementById('setting-byGroups').style.display = mode === 'byGroups' ? '' : 'none';
+}
+
+function loadSample() {
+  const sample = `王小明\n陳大華\n李美玲\n張志偉\n林淑芬\n劉建宏\n黃雅婷\n吳俊傑\n蔡宜珊\n鄭宗翰\n許雅雯\n江明哲\n林思穎\n謝宏達\n洪雅婷\n邱柏翔\n蘇雅惠\n游岳霖\n廖冠廷\n賴宛蓉`;
+  document.getElementById('name-input').value = sample;
+  parseMembers();
+  showToast('已載入20位範例學生');
+}
+
+function clearAll() {
+  document.getElementById('name-input').value = '';
+  members = [];
+  absentMembers.clear();
+  document.getElementById('member-count').textContent = '0';
+  document.getElementById('calc-result').textContent = '';
+  document.getElementById('absent-section').style.display = 'none';
+  try { localStorage.removeItem('ifs_members'); } catch(e) {}
+  updateAttendanceCard();
+}
+
+function randomAssign() {
+  parseMembers();
+  const active = getActiveMembers();
+  if (active.length < 2) { showToast('請先輸入至少2位成員！'); showPage('setup'); return; }
+
+  const mode = document.getElementById('group-mode').value;
+  let numGroups;
+  if (mode === 'byCount') {
+    const per = parseInt(document.getElementById('per-group').value) || 5;
+    numGroups = Math.ceil(active.length / per);
+  } else {
+    numGroups = parseInt(document.getElementById('num-groups-input').value) || 4;
+  }
+  numGroups = Math.max(1, Math.min(numGroups, active.length));
+
+  const shuffled = [...active].sort(() => Math.random() - 0.5);
+  groups = [];
+  for (let i = 0; i < numGroups; i++) groups.push([]);
+  shuffled.forEach((m, i) => groups[i % numGroups].push(m));
+
+  currentRotation = 0;
+  renderGroups();
+  renderTimerGroupSelector();
+  showPage('groups');
+  showToast(`已分成 ${numGroups} 組！`);
+  addLog('分組', `${active.length} 人分為 ${numGroups} 組`);
+  syncGroupsToStorage();
+}
+
+// ─── STORAGE SYNC ────────────────────────────────
+function syncGroupsToStorage() {
+  if (db && currentRoom) {
+    db.ref('rooms/' + currentRoom + '/groups').set(groups);
+    db.ref('rooms/' + currentRoom + '/rotation').set(currentRotation);
+  }
+  // Also keep localStorage as fallback
+  try { localStorage.setItem('ifs_groups', JSON.stringify(groups)); localStorage.setItem('ifs_rotation', String(currentRotation)); } catch(e){}
+}
+
+// ─── GROUPS ──────────────────────────────────────
+function renderGroups() {
+  const grid = document.getElementById('groups-grid');
+  const noGroups = document.getElementById('no-groups');
+  const summary = document.getElementById('groups-summary');
+
+  if (groups.length === 0) {
+    grid.style.display = 'none'; noGroups.style.display = 'block'; summary.style.display = 'none';
+    refreshStudentTargetList();
+    return;
+  }
+
+  grid.style.display = 'grid'; noGroups.style.display = 'none'; summary.style.display = 'flex';
+  const total = groups.reduce((s, g) => s + g.length, 0);
+  const avg = total > 0 ? (total / groups.length).toFixed(1) : 0;
+  document.getElementById('sum-total').textContent = `${total} 位成員`;
+  document.getElementById('sum-groups').textContent = `${groups.length} 組`;
+  document.getElementById('sum-per').textContent = `每組約 ${avg} 人`;
+
+  grid.innerHTML = '';
+  groups.forEach((grp, gi) => {
+    const card = document.createElement('div');
+    card.className = 'group-card fade-in';
+    card.dataset.groupIndex = gi;
+    card.ondragover = e => { e.preventDefault(); card.classList.add('drag-over'); };
+    card.ondragleave = () => card.classList.remove('drag-over');
+    card.ondrop = e => { e.preventDefault(); card.classList.remove('drag-over'); handleDrop(e, gi); };
+
+    card.innerHTML = `
+      <div class="group-header">
+        <span class="group-name-text">第 ${gi+1} 組</span>
+        <span class="group-count">${grp.length} 人</span>
+      </div>
+      <div class="group-body">
+        <div class="group-roles">
+          ${grp.map((name, idx) => `
+            <div class="role-row" draggable="true" data-group="${gi}" data-idx="${idx}"
+              ondragstart="handleDragStart(event, ${gi}, ${idx})">
+              <span class="role-badge ${idx === 0 ? 'host' : 'judge'}">${idx === 0 ? '面試者' : '主考官'}</span>
+              <span class="role-name">${name}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+  refreshStudentTargetList();
+}
+
+let dragSource = null;
+
+function handleDragStart(e, groupIdx, memberIdx) {
+  dragSource = { groupIdx, memberIdx };
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDrop(e, targetGroupIdx) {
+  if (!dragSource) return;
+  const { groupIdx: srcG, memberIdx: srcI } = dragSource;
+  if (srcG === targetGroupIdx) return;
+  const name = groups[srcG].splice(srcI, 1)[0];
+  groups[targetGroupIdx].push(name);
+  // Remove empty groups
+  groups = groups.filter(g => g.length > 0);
+  dragSource = null;
+  renderGroups();
+  showToast(`${name} 已移至第 ${targetGroupIdx + 1} 組`);
+}
+
+function printGroups() {
+  window.print();
+}
+
+// ─── TIMER GROUP PANEL ───────────────────────────
+function renderTimerGroupSelector() {
+  const container = document.getElementById('timer-all-groups');
+  const grid = document.getElementById('timer-all-groups-grid');
+  if (!groups.length) { container.style.display = 'none'; return; }
+
+  container.style.display = '';
+  const maxRounds = Math.max(...groups.map(g => g.length));
+  const allDone = currentRotation >= maxRounds;
+
+  document.getElementById('rotation-badge').textContent =
+    allDone ? '全員完成 🎉' : `第 ${currentRotation + 1} 輪 ／ 共 ${maxRounds} 輪`;
+
+  const btn = document.getElementById('btn-next-interviewee');
+  btn.disabled = allDone;
+  btn.style.opacity = allDone ? '0.4' : '1';
+  btn.style.cursor = allDone ? 'not-allowed' : 'pointer';
+
+  document.getElementById('rotation-done-msg').style.display = allDone ? '' : 'none';
+
+  if (allDone) { grid.innerHTML = ''; return; }
+
+  grid.innerHTML = groups.map((grp, gi) => {
+    const intervieweeIdx = currentRotation % grp.length;
+    const interviewee = grp[intervieweeIdx];
+    const judges = grp.filter((_, i) => i !== intervieweeIdx);
+    const doneNames = new Set(
+      Array.from({ length: currentRotation }, (_, r) => grp[r % grp.length])
+    );
+    return `
+      <div class="timer-group-card">
+        <div class="timer-group-card-header">
+          <span class="timer-group-card-title">第 ${gi + 1} 組</span>
+          <span class="timer-group-card-count">${grp.length} 人</span>
+        </div>
+        <div class="timer-group-card-body">
+          <div class="timer-role-row interviewee">
+            <span class="role-badge host">面試者</span>
+            <span class="timer-role-name">${interviewee}</span>
+          </div>
+          ${judges.map(name => {
+            const done = doneNames.has(name);
+            return `<div class="timer-role-row" style="${done ? 'opacity:0.45;' : ''}">
+              <span class="role-badge judge">主考官</span>
+              <span class="timer-role-name">${name}${done ? ' ✓' : ''}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── CONFIRM NEXT INTERVIEWEE ─────────────────────
+function confirmNextInterviewee() {
+  if (!groups.length) { showToast('尚未分組'); return; }
+  const maxRounds = Math.max(...groups.map(g => g.length));
+  if (currentRotation >= maxRounds) {
+    showToast('所有人都已完成面試！');
+    return;
+  }
+  showModal('👤', '換下一位面試者', '確定要切換到下一位面試者嗎？目前的計時將會重設。', nextInterviewee);
+}
+
+function nextInterviewee() {
+  const maxRounds = Math.max(...groups.map(g => g.length));
+  // Log who just finished
+  groups.forEach((grp, gi) => {
+    const prevIntervieweeIdx = currentRotation % grp.length;
+    const name = grp[prevIntervieweeIdx];
+    addLog('面試完成', `第 ${gi+1} 組 ${name} 完成面試（第 ${currentRotation + 1} 輪）`);
+  });
+  currentRotation++;
+  syncGroupsToStorage();
+  resetTimer();
+  selectPhase(1);
+  renderTimerGroupSelector();
+  refreshStudentTargetList();
+  if (currentRotation >= maxRounds) {
+    showToast('🎉 所有人都已完成面試！');
+  } else {
+    showToast(`第 ${currentRotation + 1} 輪開始！`);
+  }
+}
+
+function resetRotation() {
+  currentRotation = 0;
+  syncGroupsToStorage();
+  resetTimer();
+  selectPhase(1);
+  renderTimerGroupSelector();
+  refreshStudentTargetList();
+  showToast('已重頭開始');
+}
+
+// ─── TIMER ───────────────────────────────────────
+let warnPlayed = false;
+
+function selectPhase(ph) {
+  currentPhase = ph;
+  resetTimer();
+  document.querySelectorAll('.phase-tab').forEach((t,i) => t.classList.toggle('active', i+1 === ph));
+
+  const d = phaseDefaults[ph];
+  document.getElementById('timer-phase-name').textContent = d.name;
+  document.getElementById('phase-desc-title').textContent = ['🎤 ','👂 ','💬 ','📝 '][ph-1] + d.name;
+  document.getElementById('phase-desc-list').innerHTML = d.desc.map(s => `<li>${s}</li>`).join('');
+  document.getElementById('fs-phase-name').textContent = d.name;
+
+  timerSeconds = phaseSettings[ph].time;
+  totalSeconds = timerSeconds;
+  warningSeconds = phaseSettings[ph].warning;
+  updateTimerDisplay();
+  updateSettingsDisplay();
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  try { getCtx().resume(); } catch(e) {}
+
+  timerRunning = true;
+  timerPaused = false;
+  warnPlayed = false;
+  playStartSound();
+
+  setBtn('btn-start', 'none'); setBtn('btn-pause', ''); setBtn('btn-resume', 'none');
+  setBtn('fs-btn-start', 'none'); setBtn('fs-btn-pause', ''); setBtn('fs-btn-resume', 'none');
+  document.getElementById('timer-finished-msg').style.display = 'none';
+  document.getElementById('fs-finished').style.display = 'none';
+  document.getElementById('timer-status-text').textContent = '進行中...';
+  document.getElementById('fs-status').textContent = '進行中...';
+  timerInterval = setInterval(tick, 1000);
+
+  addLog('計時開始', phaseDefaults[currentPhase].name);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false; timerPaused = true;
+  setBtn('btn-pause', 'none'); setBtn('btn-resume', '');
+  setBtn('fs-btn-pause', 'none'); setBtn('fs-btn-resume', '');
+  document.getElementById('timer-status-text').textContent = '已暫停';
+  document.getElementById('fs-status').textContent = '已暫停';
+}
+
+function resumeTimer() {
+  timerRunning = true; timerPaused = false;
+  setBtn('btn-pause', ''); setBtn('btn-resume', 'none');
+  setBtn('fs-btn-pause', ''); setBtn('fs-btn-resume', 'none');
+  document.getElementById('timer-status-text').textContent = '進行中...';
+  document.getElementById('fs-status').textContent = '進行中...';
+  timerInterval = setInterval(tick, 1000);
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  clearAutoAdvanceCountdown();
+  timerRunning = false; timerPaused = false; warnPlayed = false;
+  timerSeconds = phaseSettings[currentPhase].time;
+  totalSeconds = timerSeconds;
+
+  setBtn('btn-start', ''); setBtn('btn-pause', 'none'); setBtn('btn-resume', 'none');
+  setBtn('fs-btn-start', ''); setBtn('fs-btn-pause', 'none'); setBtn('fs-btn-resume', 'none');
+  document.getElementById('timer-finished-msg').style.display = 'none';
+  document.getElementById('fs-finished').style.display = 'none';
+  document.getElementById('timer-status-text').textContent = '準備開始';
+  document.getElementById('fs-status').textContent = '準備開始';
+
+  const tDisplay = document.getElementById('timer-display');
+  tDisplay.className = 'timer-time';
+  updateTimerDisplay();
+}
+
+function setBtn(id, disp) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = disp;
+}
+
+function tick() {
+  timerSeconds--;
+  updateTimerDisplay();
+
+  if (timerSeconds === warningSeconds && !warnPlayed) {
+    warnPlayed = true;
+    playWarningSound();
+    showToast(`⚠️ 還剩 ${warningSeconds} 秒！`);
+  }
+
+  if (timerSeconds <= 10 && timerSeconds > 0) {
+    playTickSound();
+  }
+
+  if (timerSeconds <= 0) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerSeconds = 0;
+    playFinishSound();
+    triggerFinishFlash();
+    document.getElementById('timer-finished-msg').style.display = 'block';
+    document.getElementById('fs-finished').style.display = 'block';
+    setBtn('btn-pause', 'none'); setBtn('btn-start', 'none');
+    setBtn('fs-btn-pause', 'none'); setBtn('fs-btn-start', 'none');
+    document.getElementById('timer-status-text').textContent = '時間到！';
+    document.getElementById('fs-status').textContent = '時間到！';
+    showToast('⏰ 時間到！');
+    addLog('計時結束', phaseDefaults[currentPhase].name);
+
+    if (autoAdvanceEnabled && currentPhase < 4) {
+      startAutoAdvanceCountdown();
+    }
+  }
+}
+
+function triggerFinishFlash() {
+  // Screen flash
+  const overlay = document.getElementById('flash-overlay');
+  overlay.classList.remove('active');
+  void overlay.offsetWidth;
+  overlay.classList.add('active');
+  setTimeout(() => overlay.classList.remove('active'), 1300);
+
+  // Timer face flash
+  const face = document.getElementById('timer-face-main');
+  face.classList.remove('flash-red');
+  void face.offsetWidth;
+  face.classList.add('flash-red');
+  setTimeout(() => face.classList.remove('flash-red'), 500);
+
+  if (isFullscreen) {
+    const fsFace = document.getElementById('fs-timer-face');
+    fsFace.classList.remove('flash-red');
+    void fsFace.offsetWidth;
+    fsFace.classList.add('flash-red');
+    setTimeout(() => fsFace.classList.remove('flash-red'), 500);
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  const str = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+  document.getElementById('timer-display').textContent = str;
+  document.getElementById('fs-timer-display').textContent = str;
+
+  // Color class
+  let cls = 'timer-time';
+  if (timerSeconds <= 10) {
+    cls = 'timer-time danger';
+    if (timerRunning) cls += ' pulsing';
+  } else if (timerSeconds <= warningSeconds) {
+    cls = 'timer-time warning';
+  }
+  document.getElementById('timer-display').className = cls;
+  document.getElementById('fs-timer-display').className = 'fs-timer-time ' + cls;
+
+  // Progress ring
+  const circumference = 2 * Math.PI * 115;
+  const prog = totalSeconds > 0 ? timerSeconds / totalSeconds : 0;
+  const offset = circumference * (1 - prog);
+  const ringColor = timerSeconds <= 10 ? '#d94040' : (timerSeconds <= warningSeconds ? '#e07b00' : 'var(--teal)');
+  ['timer-prog', 'fs-timer-prog'].forEach(id => {
+    const ring = document.getElementById(id);
+    if (ring) {
+      ring.style.strokeDashoffset = offset;
+      ring.style.stroke = ringColor;
+    }
+  });
+}
+
+function adjustTime(delta) {
+  if (timerRunning) return;
+  const newTime = Math.max(10, Math.min(3600, phaseSettings[currentPhase].time + delta));
+  phaseSettings[currentPhase].time = newTime;
+  timerSeconds = newTime;
+  totalSeconds = newTime;
+  updateTimerDisplay();
+  updateSettingsDisplay();
+}
+
+function adjustWarning(delta) {
+  const newWarn = Math.max(10, Math.min(phaseSettings[currentPhase].time - 10, phaseSettings[currentPhase].warning + delta));
+  phaseSettings[currentPhase].warning = newWarn;
+  warningSeconds = newWarn;
+  updateSettingsDisplay();
+}
+
+function updateSettingsDisplay() {
+  const t = phaseSettings[currentPhase].time;
+  const m = Math.floor(t/60), s = t%60;
+  document.getElementById('set-time-display').textContent = s > 0 ? `${m}分${String(s).padStart(2,'0')}秒` : `${m}分`;
+  document.getElementById('set-warn-display').textContent = `${phaseSettings[currentPhase].warning}秒`;
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+  document.getElementById('mute-btn').textContent = isMuted ? '🔇' : '🔔';
+  showToast(isMuted ? '音效已靜音' : '音效已開啟');
+}
+
+// ─── AUTO-ADVANCE ─────────────────────────────────
+function toggleAutoAdvance() {
+  autoAdvanceEnabled = document.getElementById('auto-advance-toggle').checked;
+  showToast(autoAdvanceEnabled ? `已開啟自動換階段（${autoAdvanceDelay}秒緩衝）` : '已關閉自動換階段');
+}
+
+function toggleAutoStart() {
+  autoStartEnabled = document.getElementById('auto-start-toggle').checked;
+  showToast(autoStartEnabled ? '已開啟自動開始計時' : '已關閉自動開始計時');
+}
+
+function adjustAutoDelay(delta) {
+  autoAdvanceDelay = Math.max(1, Math.min(30, autoAdvanceDelay + delta));
+  document.getElementById('auto-delay-display').textContent = `${autoAdvanceDelay}秒`;
+}
+
+function startAutoAdvanceCountdown() {
+  let remaining = autoAdvanceDelay;
+  const bar = document.getElementById('auto-advance-bar');
+  const txt = document.getElementById('auto-countdown-text');
+  bar.classList.add('countdown-active');
+  txt.textContent = `${remaining}秒後自動切換...`;
+
+  autoAdvanceCountdown = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearAutoAdvanceCountdown();
+      selectPhase(currentPhase + 1);
+      showToast(`自動進入${phaseDefaults[currentPhase].name}`);
+      if (autoStartEnabled) {
+        setTimeout(() => startTimer(), 250);
+      }
+    } else {
+      txt.textContent = `${remaining}秒後自動切換...`;
+    }
+  }, 1000);
+}
+
+function clearAutoAdvanceCountdown() {
+  if (autoAdvanceCountdown) {
+    clearInterval(autoAdvanceCountdown);
+    autoAdvanceCountdown = null;
+  }
+  const bar = document.getElementById('auto-advance-bar');
+  const txt = document.getElementById('auto-countdown-text');
+  if (bar) bar.classList.remove('countdown-active');
+  if (txt) txt.textContent = '';
+}
+
+// ─── FULLSCREEN ───────────────────────────────────
+function enterFullscreen() {
+  isFullscreen = true;
+  document.getElementById('fullscreen-overlay').classList.add('show');
+  document.getElementById('fs-close-btn').style.display = 'flex';
+  document.getElementById('fs-esc-hint').style.display = 'block';
+  clearTimeout(fullscreenHintTimer);
+  fullscreenHintTimer = setTimeout(() => {
+    const hint = document.getElementById('fs-esc-hint');
+    if (hint) hint.style.display = 'none';
+  }, 3000);
+  updateTimerDisplay();
+}
+
+function exitFullscreen() {
+  isFullscreen = false;
+  clearTimeout(fullscreenHintTimer);
+  document.getElementById('fullscreen-overlay').classList.remove('show');
+  document.getElementById('fs-close-btn').style.display = 'none';
+  document.getElementById('fs-esc-hint').style.display = 'none';
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+document.getElementById('fs-close-btn')?.addEventListener('click', exitFullscreen);
+document.getElementById('fs-close-btn')?.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  exitFullscreen();
+});
+
+// ESC key to close fullscreen
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && isFullscreen) {
+    exitFullscreen();
+  }
+});
+
+// ─── MODAL ───────────────────────────────────────
+function showModal(icon, title, msg, action) {
+  document.getElementById('modal-icon').textContent = icon;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-msg').textContent = msg;
+  pendingModalAction = action;
+  document.getElementById('confirm-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('confirm-modal').classList.remove('show');
+  pendingModalAction = null;
+}
+
+function modalConfirmAction() {
+  const action = pendingModalAction;  // save BEFORE closeModal clears it
+  closeModal();
+  if (action) action();
+}
+
+// ─── OBSERVATION CHECKLIST ───────────────────────
+function toggleObs(item) {
+  item.classList.toggle('checked');
+}
+
+function resetObs() {
+  document.querySelectorAll('#obs-checklist .obs-item').forEach(i => i.classList.remove('checked'));
+}
+
+// ─── SHARED INTERVIEWEE NAME (guide page) ────────
+function getIntervieweeName() {
+  return (document.getElementById('shared-interviewee-name').value || '').trim();
+}
+
+function syncIntervieweeName() {
+  // No-op needed - all functions now read from shared field directly
+}
+
+function clearGuidePage() {
+  document.getElementById('shared-interviewee-name').value = '';
+  document.getElementById('fb-pos').value = '';
+  document.getElementById('fb-imp').value = '';
+  document.getElementById('fb-enc').value = '';
+  resetFillers();
+  resetObs();
+  showToast('已清除，可記錄下一位面試者');
+}
+
+// ─── FILLER WORDS ────────────────────────────────
+function renderFillerGrid() {
+  const grid = document.getElementById('filler-grid');
+  grid.innerHTML = fillerWords.map((w, idx) => `
+    <button class="filler-btn" onclick="incrementFiller(${idx})">
+      <span class="filler-word">${w}…</span>
+      <span class="filler-count" id="fc-${idx}">${fillerCounts[w] || 0}</span>
+    </button>
+  `).join('');
+  updateFillerTotal();
+}
+
+function incrementFiller(idx) {
+  const w = fillerWords[idx];
+  fillerCounts[w] = (fillerCounts[w] || 0) + 1;
+  document.getElementById(`fc-${idx}`).textContent = fillerCounts[w];
+  updateFillerTotal();
+}
+
+function updateFillerTotal() {
+  const total = fillerWords.reduce((a, w) => a + (fillerCounts[w] || 0), 0);
+  document.getElementById('filler-total').textContent = `總計：${total} 次`;
+}
+
+function resetFillers() {
+  fillerWords.forEach(w => fillerCounts[w] = 0);
+  renderFillerGrid();
+}
+
+function addCustomFiller() {
+  const input = document.getElementById('custom-filler-input');
+  const word = input.value.trim();
+  if (!word) { showToast('請輸入贅詞內容'); return; }
+  if (fillerWords.includes(word)) { showToast('此贅詞已存在'); input.value = ''; return; }
+  fillerWords.push(word);
+  fillerCounts[word] = 0;
+  input.value = '';
+  renderFillerGrid();
+  showToast(`已新增贅詞：${word}`);
+}
+
+function saveFillerRecord() {
+  const name = getIntervieweeName() || '（未指定）';
+  const total = fillerWords.reduce((a, w) => a + (fillerCounts[w] || 0), 0);
+  if (total === 0) { showToast('贅詞總計為 0，請先計數再存入'); return; }
+  const detail = fillerWords
+    .filter(w => (fillerCounts[w] || 0) > 0)
+    .map(w => `${w}×${fillerCounts[w]}`)
+    .join('  ') + `  ＝${total}次`;
+  addLog('贅詞統計', `${name}｜${detail}`);
+  showToast(`${name} 的贅詞記錄已存入！`);
+}
+
+function copyFillerRecord() {
+  const name = getIntervieweeName() || '（未指定）';
+  const total = fillerWords.reduce((a, w) => a + (fillerCounts[w] || 0), 0);
+  if (total === 0) { showToast('贅詞總計為 0'); return; }
+  const lines = fillerWords
+    .filter(w => (fillerCounts[w] || 0) > 0)
+    .map(w => `  ${w}… × ${fillerCounts[w]} 次`)
+    .join('\n');
+  const text = `【贅詞統計】${name}\n${lines}\n  總計：${total} 次`;
+  navigator.clipboard.writeText(text).then(() => showToast('已複製贅詞統計！'));
+}
+
+// ─── STUDENT FILLER WORDS ────────────────────────
+function renderStudentFillerGrid() {
+  const grid = document.getElementById('student-filler-grid');
+  if (!grid) return;
+  grid.innerHTML = studentFillerWords.map((w, idx) => `
+    <button class="filler-btn" onclick="incrementStudentFiller(${idx})">
+      <span class="filler-word">${w}…</span>
+      <span class="filler-count" id="sfc-${idx}">${studentFillerCounts[w] || 0}</span>
+    </button>
+  `).join('');
+  updateStudentFillerTotal();
+}
+
+function incrementStudentFiller(idx) {
+  const w = studentFillerWords[idx];
+  studentFillerCounts[w] = (studentFillerCounts[w] || 0) + 1;
+  document.getElementById(`sfc-${idx}`).textContent = studentFillerCounts[w];
+  updateStudentFillerTotal();
+}
+
+function updateStudentFillerTotal() {
+  const total = studentFillerWords.reduce((a, w) => a + (studentFillerCounts[w] || 0), 0);
+  const el = document.getElementById('student-filler-total');
+  if (el) el.textContent = `總計：${total} 次`;
+}
+
+function resetStudentFillers() {
+  studentFillerWords.forEach(w => studentFillerCounts[w] = 0);
+  renderStudentFillerGrid();
+}
+
+function addStudentCustomFiller() {
+  const input = document.getElementById('student-custom-filler-input');
+  const word = input.value.trim();
+  if (!word) { showToast('請輸入贅詞內容'); return; }
+  if (studentFillerWords.includes(word)) { showToast('此贅詞已存在'); input.value = ''; return; }
+  studentFillerWords.push(word);
+  studentFillerCounts[word] = 0;
+  input.value = '';
+  renderStudentFillerGrid();
+  showToast(`已新增贅詞：${word}`);
+}
+
+// ─── SANDWICH FEEDBACK ───────────────────────────
+function copyFeedback() {
+  const name = getIntervieweeName();
+  const pos = document.getElementById('fb-pos').value.trim();
+  const imp = document.getElementById('fb-imp').value.trim();
+  const enc = document.getElementById('fb-enc').value.trim();
+  if (!pos && !imp && !enc) { showToast('請先填寫回饋內容'); return; }
+  const text = `【三明治回饋】${name ? ' 給 ' + name : ''}
+👍 優點：${pos || '（未填）'}
+🎯 改進點：${imp || '（未填）'}
+💪 鼓勵：${enc || '（未填）'}`;
+  navigator.clipboard.writeText(text).then(() => showToast('已複製回饋內容！'));
+}
+
+function saveFeedbackToLog() {
+  const name = getIntervieweeName();
+  if (!name) { showToast('請先在頁面頂部填寫面試者姓名'); return; }
+  const pos = document.getElementById('fb-pos').value.trim();
+  const imp = document.getElementById('fb-imp').value.trim();
+  const enc = document.getElementById('fb-enc').value.trim();
+  addLog('三明治回饋', `${name}｜優：${pos.slice(0,20)||'—'}  改：${imp.slice(0,20)||'—'}  鼓：${enc.slice(0,20)||'—'}`);
+  showToast(`${name} 的回饋已存入紀錄`);
+}
+
+function clearFeedback() {
+  document.getElementById('fb-pos').value = '';
+  document.getElementById('fb-imp').value = '';
+  document.getElementById('fb-enc').value = '';
+}
+
+// ─── SESSION LOG ─────────────────────────────────
+function addLog(type, detail, fixedTime) {
+  const now = new Date();
+  const timeStr = fixedTime || `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  sessionLog.unshift({ time: timeStr, type, detail });
+  // Update badge
+  document.getElementById('log-count-badge').innerHTML = `📋 ${sessionLog.length} 筆紀錄`;
+  if (document.getElementById('page-log').classList.contains('active')) renderLog();
+}
+
+function renderLog() {
+  const list = document.getElementById('log-list');
+  if (sessionLog.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text3);"><div style="font-size:36px;margin-bottom:12px;">📋</div><div style="font-size:15px;">尚無紀錄</div><div style="font-size:13px;margin-top:6px;">開始面試後，這裡會顯示活動紀錄</div></div>`;
+    return;
+  }
+  list.innerHTML = sessionLog.map((entry, i) => `
+    <div class="log-entry fade-in">
+      <span class="log-time">${entry.time}</span>
+      <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(33,150,201,0.1);color:var(--teal);white-space:nowrap;">${entry.type}</span>
+      <span class="log-label">${entry.detail}</span>
+    </div>
+  `).join('');
+}
+
+function copyLog() {
+  if (sessionLog.length === 0) { showToast('紀錄是空的'); return; }
+  const text = sessionLog.map(e => `[${e.time}] ${e.type}：${e.detail}`).join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('紀錄已複製！'));
+}
+
+function clearLog() {
+  showModal('🗑️', '清除紀錄', '確定要清除所有活動紀錄嗎？此操作不可恢復。', () => {
+    sessionLog = [];
+    document.getElementById('log-count-badge').innerHTML = '📋 0 筆紀錄';
+    renderLog();
+    showToast('紀錄已清除');
+  });
+}
+
+// ─── TOAST ───────────────────────────────────────
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ─── ROLE MODE (Teacher / Student) ───────────────
+function toggleRoleMode_disabled() {
+  isStudentMode = !isStudentMode;
+  const badge = document.getElementById('role-badge');
+  const switchBtn = document.getElementById('role-switch-btn');
+  const teacherOnlyBtns = document.querySelectorAll('.teacher-only');
+  const studentOnlyBtns = document.querySelectorAll('.student-only');
+
+  if (isStudentMode) {
+    badge.textContent = '🧑‍🎓 學生模式';
+    badge.className = 'role-mode-badge student';
+    switchBtn.textContent = '切換老師模式';
+    teacherOnlyBtns.forEach(b => b.style.display = 'none');
+    studentOnlyBtns.forEach(b => b.style.display = '');
+    showPage('student');
+    showToast('已切換到學生模式 — 填寫個人回饋');
+  } else {
+    badge.textContent = '👨‍🏫 老師模式';
+    badge.className = 'role-mode-badge teacher';
+    switchBtn.textContent = '切換學生模式';
+    teacherOnlyBtns.forEach(b => b.style.display = '');
+    studentOnlyBtns.forEach(b => b.style.display = 'none');
+    showPage('timer');
+    showToast('已切換到老師模式');
+  }
+}
+
+// ─── STUDENT FEEDBACK ────────────────────────────
+function refreshStudentTargetList() {
+  const sel = document.getElementById('student-target-name');
+  if (!sel) return;
+  const prev = sel.value;
+  let groupsToUse = groups;
+  if (!groupsToUse.length) {
+    try { groupsToUse = JSON.parse(localStorage.getItem('ifs_groups') || '[]'); } catch(e) {}
+  }
+
+  let names = [];
+  if (groupsToUse.length > 0) {
+    groupsToUse.forEach(grp => {
+      if (!grp.length) return;
+      const idx = currentRotation % grp.length;
+      names.push(grp[idx]);
+    });
+  } else {
+    parseMembers();
+    names = getActiveMembers();
+  }
+
+  names = [...new Set(names.filter(Boolean))];
+  sel.innerHTML = '<option value="">請選擇面試者…</option>' +
+    names.map(n => `<option value="${n}" ${n === prev ? 'selected' : ''}>${n}</option>`).join('') +
+    '<option value="__custom__">手動輸入…</option>';
+  onStudentTargetChange();
+}
+
+function onStudentTargetChange() {
+  const sel = document.getElementById('student-target-name');
+  const field = document.getElementById('student-target-custom-field');
+  const input = document.getElementById('student-target-custom');
+  if (!sel || !field) return;
+  const isCustom = sel.value === '__custom__';
+  field.style.display = isCustom ? '' : 'none';
+  if (isCustom && input) setTimeout(() => input.focus(), 0);
+}
+
+function normalizeFeedbackTarget(value) {
+  return String(value || '')
+    .trim()
+    .replace(/^座號\s*/i, '')
+    .replace(/\s+/g, '')
+    .replace(/號$/i, '');
+}
+
+function generateStudentResult() {
+  const reviewer = document.getElementById('student-reviewer-name').value.trim() || '匿名';
+  let target = document.getElementById('student-target-name').value;
+  if (target === '__custom__') target = document.getElementById('student-target-custom').value.trim();
+  if (!target) { showToast('請選擇或輸入面試者姓名'); return; }
+  const round = document.getElementById('student-round').value;
+  const pos = document.getElementById('student-fb-pos').value.trim();
+  const imp = document.getElementById('student-fb-imp').value.trim();
+  const enc = document.getElementById('student-fb-enc').value.trim();
+
+  const fillerTotal = studentFillerWords.reduce((a, w) => a + (studentFillerCounts[w] || 0), 0);
+  const fillerDetail = fillerTotal > 0
+    ? '\n🔢 贅詞：' + studentFillerWords.filter(w => (studentFillerCounts[w]||0) > 0)
+        .map(w => `${w}×${studentFillerCounts[w]}`).join('  ') + `（共${fillerTotal}次）`
+    : '';
+  const fillerData = {};
+  studentFillerWords.forEach(w => {
+    if ((studentFillerCounts[w] || 0) > 0) fillerData[w] = studentFillerCounts[w];
+  });
+
+  const text = `【回饋者：${reviewer}】→ 面試者：${target}（${round}）
+👍 優點：${pos || '（未填）'}
+🎯 改進點：${imp || '（未填）'}
+💪 鼓勵：${enc || '（未填）'}${fillerDetail}`;
+
+  pendingStudentFeedback = {
+    id: Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    timestamp: new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}),
+    reviewer,
+    target,
+    targetKey: normalizeFeedbackTarget(target),
+    round,
+    pos,
+    imp,
+    enc,
+    fillerData,
+    fillerTotal,
+    source: 'teacher'
+  };
+
+  document.getElementById('student-result-box').textContent = text;
+  document.getElementById('student-result-card').style.display = '';
+  showToast('回饋摘要已產生！');
+}
+
+async function submitStudentResultToFeedbacks() {
+  if (!pendingStudentFeedback) {
+    generateStudentResult();
+    if (!pendingStudentFeedback) return false;
+  }
+
+  const feedback = {...pendingStudentFeedback};
+  if (!db || !currentRoom) {
+    showToast('尚未連線到場次，無法傳送到學生端');
+    return false;
+  }
+
+  await db.ref('rooms/' + currentRoom + '/feedbacks').push(feedback);
+
+  try {
+    const feedbacks = JSON.parse(localStorage.getItem('ifs_feedbacks') || '[]');
+    feedbacks.push(feedback);
+    localStorage.setItem('ifs_feedbacks', JSON.stringify(feedbacks));
+  } catch(e) {}
+
+  pendingStudentFeedback = null;
+  return true;
+}
+
+function copyStudentResult() {
+  const text = document.getElementById('student-result-box').textContent;
+  if (!text) { showToast('請先產生回饋摘要'); return; }
+  navigator.clipboard.writeText(text).then(() => showToast('已複製！可傳給面試者'));
+}
+
+function saveStudentResultToLog() {
+  const text = document.getElementById('student-result-box').textContent;
+  if (!text) { showToast('請先產生回饋摘要'); return; }
+  const firstLine = text.split('\n')[0];
+  addLog('學生回饋', firstLine);
+  showToast('已存入紀錄');
+}
+
+function clearStudentFeedback() {
+  document.getElementById('student-reviewer-name').value = '';
+  document.getElementById('student-target-name').value = '';
+  document.getElementById('student-target-custom').value = '';
+  onStudentTargetChange();
+  document.getElementById('student-fb-pos').value = '';
+  document.getElementById('student-fb-imp').value = '';
+  document.getElementById('student-fb-enc').value = '';
+  document.getElementById('student-result-card').style.display = 'none';
+  resetStudentFillers();
+}
+
+// ─── SHARE FEEDBACK ──────────────────────────────
+async function shareFeedback() {
+  const name = getIntervieweeName();
+  const pos  = document.getElementById('fb-pos').value.trim();
+  const imp  = document.getElementById('fb-imp').value.trim();
+  const enc  = document.getElementById('fb-enc').value.trim();
+  if (!pos && !imp && !enc) { showToast('請先填寫回饋內容'); return; }
+
+  const fillerTotal = fillerWords.reduce((a, w) => a + (fillerCounts[w] || 0), 0);
+  const fillerLine  = fillerTotal > 0
+    ? '\n🔢 贅詞總計：' + fillerTotal + ' 次（' +
+      fillerWords.filter(w => (fillerCounts[w]||0) > 0)
+        .map(w => w + '×' + fillerCounts[w]).join('  ') + '）'
+    : '';
+
+  const feedbackText =
+    '【三明治回饋報告】' + (name ? '給 ' + name : '') + '\n' +
+    '👍 優點：' + (pos || '（未填）') + '\n' +
+    '🎯 改進點：' + (imp || '（未填）') + '\n' +
+    '💪 鼓勵：' + (enc || '（未填）') +
+    fillerLine;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: '面試模擬回饋報告', text: feedbackText });
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('分享失敗，已自動複製');
+    }
+  } else {
+    navigator.clipboard.writeText(feedbackText)
+      .then(() => showToast('已複製回饋內容，請直接貼上給對方！'))
+      .catch(() => showToast('複製失敗，請手動複製'));
+  }
+}
+
+async function shareStudentResult() {
+  const text = document.getElementById('student-result-box').textContent;
+  if (!text) { showToast('請先產生回饋摘要'); return; }
+  try {
+    if (!await submitStudentResultToFeedbacks()) return;
+  } catch(e) {
+    showToast('傳送到學生端失敗，請確認網路與 Firebase');
+    return;
+  }
+  showToast('已傳送到學生端，可用面試者姓名/座號查詢');
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: '面試模擬回饋報告', text });
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('分享失敗，已自動複製');
+    }
+  } else {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('已複製回饋內容，請直接貼上給對方！'))
+      .catch(() => showToast('複製失敗，請手動複製'));
+  }
+}
+
+// ─── COLLECTED FEEDBACKS ─────────────────────────
+function renderCollected() {
+  const filter = (document.getElementById('collected-filter').value || '').trim().toLowerCase();
+  // Use allFeedbacks (from Firebase listener) or fall back to localStorage
+  let feedbacks = allFeedbacks.length > 0 ? allFeedbacks
+    : JSON.parse(localStorage.getItem('ifs_feedbacks') || '[]');
+  const matched = filter
+    ? feedbacks.filter(f => f.target && f.target.toLowerCase().includes(filter))
+    : feedbacks;
+
+  const summary = document.getElementById('collected-summary');
+  const list = document.getElementById('collected-list');
+
+  if (feedbacks.length === 0) {
+    summary.innerHTML = '';
+    list.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--text3);">
+      <div style="font-size:40px;margin-bottom:12px;">📭</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">尚無學生回饋</div>
+      <div style="font-size:13px;">學生透過學生端提交後，回饋會在這裡顯示</div></div>`;
+    return;
+  }
+
+  // Group by target
+  const byTarget = {};
+  matched.forEach(f => {
+    if (!byTarget[f.target]) byTarget[f.target] = [];
+    byTarget[f.target].push(f);
+  });
+
+  summary.innerHTML = `<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(33,150,201,0.08);border:1px solid var(--teal);border-radius:20px;padding:4px 14px;font-size:13px;color:var(--teal);font-weight:700;">
+    📥 共 ${matched.length} 筆回饋，涵蓋 ${Object.keys(byTarget).length} 位面試者</div>`;
+
+  list.innerHTML = Object.entries(byTarget).map(([target, fbs]) => `
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:15px;font-weight:900;color:var(--amber);">🎤 ${target}</span>
+        <span style="font-size:11px;background:rgba(224,123,0,0.1);border:1px solid rgba(224,123,0,0.3);color:var(--amber);border-radius:10px;padding:2px 9px;font-weight:700;">${fbs.length} 筆回饋</span>
+      </div>
+      ${fbs.map(f => renderCollectedCard(f)).join('')}
+    </div>
+  `).join('<div style="height:1px;background:var(--border2);margin:8px 0 20px;"></div>');
+}
+
+function renderCollectedCard(f) {
+  const fillerHtml = f.fillerTotal > 0
+    ? `<div style="display:flex;gap:9px;align-items:flex-start;margin-bottom:8px;">
+       <span style="font-size:16px;flex-shrink:0;">🔢</span>
+       <div><div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--coral);margin-bottom:3px;">贅詞</div>
+       <div style="display:flex;flex-wrap:wrap;gap:5px;">
+         ${Object.entries(f.fillerData).map(([w,c]) =>
+           `<span style="font-size:11px;padding:2px 8px;border-radius:12px;background:rgba(217,64,64,0.1);border:1px solid rgba(217,64,64,0.25);color:var(--coral);font-weight:700;">${w}×${c}</span>`).join('')}
+         <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:rgba(217,64,64,0.18);border:1px solid var(--coral);color:var(--coral);font-weight:700;">共${f.fillerTotal}次</span>
+       </div></div></div>`
+    : '';
+
+  return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:9px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <span style="font-size:12px;color:var(--text3);">👤 ${f.reviewer}　${f.timestamp}</span>
+      <span style="font-size:11px;background:rgba(33,150,201,0.1);border:1px solid var(--border);color:var(--teal);border-radius:10px;padding:2px 9px;font-weight:700;">${f.round}</span>
+    </div>
+    ${f.pos ? `<div style="display:flex;gap:9px;align-items:flex-start;margin-bottom:8px;"><span style="font-size:16px;flex-shrink:0;">👍</span><div><div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--teal);margin-bottom:2px;">優點</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${f.pos}</div></div></div>` : ''}
+    ${f.imp ? `<div style="display:flex;gap:9px;align-items:flex-start;margin-bottom:8px;"><span style="font-size:16px;flex-shrink:0;">🎯</span><div><div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--coral);margin-bottom:2px;">改進點</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${f.imp}</div></div></div>` : ''}
+    ${f.enc ? `<div style="display:flex;gap:9px;align-items:flex-start;margin-bottom:8px;"><span style="font-size:16px;flex-shrink:0;">💪</span><div><div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--amber);margin-bottom:2px;">鼓勵</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${f.enc}</div></div></div>` : ''}
+    ${fillerHtml}
+  </div>`;
+}
+
+function copyAllCollected() {
+  const feedbacks = JSON.parse(localStorage.getItem('ifs_feedbacks') || '[]');
+  if (feedbacks.length === 0) { showToast('目前沒有回饋資料'); return; }
+  const text = feedbacks.map(f => {
+    const fl = f.fillerTotal > 0 ? '\n贅詞：' + Object.entries(f.fillerData).map(([w,c])=>`${w}×${c}`).join(' ') + `（共${f.fillerTotal}次）` : '';
+    return `[${f.timestamp}] ${f.reviewer} → ${f.target}（${f.round}）
+優：${f.pos||'—'}
+改：${f.imp||'—'}
+鼓：${f.enc||'—'}${fl}`;
+  }).join('\n\n────\n\n');
+  navigator.clipboard.writeText(text).then(() => showToast('所有回饋已複製！'));
+}
+
+function clearCollected() {
+  showModal('🗑️', '清除所有學生回饋', '確定要清除全部學生提交的回饋嗎？此操作不可恢復。', () => {
+    if (db && currentRoom) db.ref('rooms/' + currentRoom + '/feedbacks').remove();
+    try { localStorage.removeItem('ifs_feedbacks'); } catch(e) {}
+    allFeedbacks = [];
+    renderCollected();
+    showToast('已清除所有學生回饋');
+  });
+}
+
+// ─── INIT ─────────────────────────────────────────
+initFirebase();
+updateSettingsDisplay();
+updateTimerDisplay();
+renderGroups();
+renderTimerGroupSelector();
+renderFillerGrid();
+renderStudentFillerGrid();
+restoreMembersFromStorage();
+
+// ─── FIREBASE SETUP WIZARD ────────────────────────────────────────
+function showFirebaseSetupWizard() {
+  document.getElementById('fb-wizard-overlay').style.display = 'flex';
+  const saved = localStorage.getItem('firebase_config_v1');
+  if (saved) {
+    document.getElementById('fb-wizard-textarea').value = saved;
+  }
+}
+function closeFirebaseWizard() {
+  document.getElementById('fb-wizard-overlay').style.display = 'none';
+}
+function saveFirebaseConfig() {
+  const raw = document.getElementById('fb-wizard-textarea').value.trim();
+  if (!raw) {
+    alert('請貼入你的 Firebase 設定');
+    return;
+  }
+  // Accept raw JS object literal or JSON
+  let parsed;
+  try {
+    // Try JSON first
+    parsed = JSON.parse(raw);
+  } catch(e1) {
+    // Try extracting from JS object literal like firebaseConfig = { ... }
+    try {
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('no object found');
+      // Convert JS object literal to JSON: add quotes to keys
+      const jsonLike = match[0]
+        .replace(/\/\/.*$/gm, '') // remove line comments
+        .replace(/,\s*\}/g, '}') // trailing commas
+        .replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)(\s*:)/g, '$1"$2"$3') // quote keys
+        .replace(/'/g, '"'); // single to double quotes
+      parsed = JSON.parse(jsonLike);
+    } catch(e2) {
+      alert('設定格式有誤，請確認已複製完整的 firebaseConfig 物件（大括號 { } 內的部分）');
+      return;
+    }
+  }
+  if (!parsed.apiKey || !parsed.databaseURL) {
+    alert('⚠️ 缺少 apiKey 或 databaseURL，請確認已啟用 Realtime Database 並複製完整設定');
+    return;
+  }
+  localStorage.setItem('firebase_config_v1', JSON.stringify(parsed));
+  closeFirebaseWizard();
+  alert('✅ 設定已儲存！重新整理頁面後生效。');
+  location.reload();
+}
+function clearFirebaseConfig() {
+  if (confirm('確定要清除已儲存的 Firebase 設定嗎？')) {
+    localStorage.removeItem('firebase_config_v1');
+    location.reload();
+  }
+}
+// Auto-show wizard on load if no config
+window.addEventListener('load', function() {
+  if (!_loadSavedFirebaseConfig()) {
+    setTimeout(showFirebaseSetupWizard, 800);
+  }
+});
+</script>
+
+<!-- Firebase Setup Wizard Overlay -->
+<div id="fb-wizard-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#1a1a2e;border:2px solid #4db6ac;border-radius:16px;max-width:560px;width:100%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.6);font-family:system-ui,sans-serif;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <span style="font-size:22px;">🔧</span>
+      <span style="font-size:18px;font-weight:800;color:#e0e0e0;">Firebase 一鍵設定</span>
+    </div>
+    <p style="color:#9e9e9e;font-size:13px;margin:0 0 16px;">不需要改程式碼！只需貼入 Firebase 設定，儲存後自動生效。</p>
+
+    <div style="background:rgba(77,182,172,0.08);border:1px solid rgba(77,182,172,0.3);border-radius:10px;padding:14px;margin-bottom:16px;font-size:12.5px;color:#b0bec5;line-height:1.8;">
+      <b style="color:#4db6ac;">如何取得設定？</b><br>
+      1. <a href="https://console.firebase.google.com" target="_blank" style="color:#4db6ac;">console.firebase.google.com</a> → 你的專案<br>
+      2. 左上齒輪⚙️ → <b>專案設定</b> → 往下捲到「你的應用程式」<br>
+      3. 選網頁應用程式（若還沒有，點「&lt;/&gt; 新增應用程式」）<br>
+      4. 複製 <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">firebaseConfig</code> 大括號 { } 內的所有內容
+    </div>
+
+    <textarea id="fb-wizard-textarea" placeholder='貼上你的 firebaseConfig，例如：
+{
+  "apiKey": "AIzaSy...",
+  "authDomain": "my-project.firebaseapp.com",
+  "databaseURL": "https://my-project-default-rtdb.firebaseio.com",
+  "projectId": "my-project",
+  "storageBucket": "my-project.appspot.com",
+  "messagingSenderId": "123456789",
+  "appId": "1:123:web:abc"
+}' style="width:100%;height:160px;background:#0d0d1a;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#e0e0e0;font-family:monospace;font-size:12px;padding:10px;resize:vertical;box-sizing:border-box;margin-bottom:14px;"></textarea>
+
+    <div style="display:flex;gap:10px;">
+      <button onclick="saveFirebaseConfig()" style="flex:2;background:#4db6ac;color:#0d0d1a;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;">✅ 儲存設定</button>
+      <button onclick="closeFirebaseWizard()" style="flex:1;background:rgba(255,255,255,0.08);color:#9e9e9e;border:1px solid rgba(255,255,255,0.15);padding:12px;border-radius:8px;font-size:14px;cursor:pointer;">稍後再說</button>
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <a href="#" onclick="clearFirebaseConfig();return false;" style="color:#616161;font-size:11px;">清除已儲存設定</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const fallbackWords = ['然後', '那個', '呃', '就是', '嗯'];
+  const state = { words: fallbackWords.slice(), counts: {} };
+  state.words.forEach((word) => state.counts[word] = 0);
+
+  function getWords() {
+    try {
+      if (typeof studentFillerWords !== 'undefined' && Array.isArray(studentFillerWords)) {
+        return studentFillerWords;
+      }
+    } catch (e) {}
+    return state.words;
+  }
+
+  function getCounts() {
+    try {
+      if (typeof studentFillerCounts !== 'undefined' && studentFillerCounts) {
+        return studentFillerCounts;
+      }
+    } catch (e) {}
+    return state.counts;
+  }
+
+  function updateTotal() {
+    const words = getWords();
+    const counts = getCounts();
+    const total = words.reduce((sum, word) => sum + (counts[word] || 0), 0);
+    const totalEl = document.getElementById('student-filler-total');
+    if (totalEl) totalEl.textContent = `總計：${total} 次`;
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('student-filler-grid');
+    if (!grid) return;
+
+    const words = getWords();
+    const counts = getCounts();
+    if (!words.length) {
+      fallbackWords.forEach((word) => {
+        words.push(word);
+        counts[word] = counts[word] || 0;
+      });
+    }
+
+    grid.innerHTML = '';
+    words.forEach((word, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'filler-btn';
+
+      const label = document.createElement('span');
+      label.className = 'filler-word';
+      label.textContent = `${word}…`;
+
+      const count = document.createElement('span');
+      count.className = 'filler-count';
+      count.id = `sfc-${index}`;
+      count.textContent = counts[word] || 0;
+
+      button.append(label, count);
+      button.addEventListener('click', () => {
+        counts[word] = (counts[word] || 0) + 1;
+        count.textContent = counts[word];
+        updateTotal();
+      });
+      grid.appendChild(button);
+    });
+
+    updateTotal();
+  }
+
+  window.renderStudentFillerGrid = renderGrid;
+  window.updateStudentFillerTotal = updateTotal;
+  window.incrementStudentFiller = function(index) {
+    const words = getWords();
+    const counts = getCounts();
+    const word = words[index];
+    if (!word) return;
+    counts[word] = (counts[word] || 0) + 1;
+    renderGrid();
+  };
+  window.resetStudentFillers = function() {
+    const counts = getCounts();
+    getWords().forEach((word) => counts[word] = 0);
+    renderGrid();
+  };
+  window.addStudentCustomFiller = function() {
+    const input = document.getElementById('student-custom-filler-input');
+    const word = input ? input.value.trim() : '';
+    if (!word) {
+      if (typeof showToast === 'function') showToast('請輸入贅詞');
+      return;
+    }
+
+    const words = getWords();
+    const counts = getCounts();
+    if (words.includes(word)) {
+      if (typeof showToast === 'function') showToast('此贅詞已存在');
+      if (input) input.value = '';
+      return;
+    }
+
+    words.push(word);
+    counts[word] = 0;
+    if (input) input.value = '';
+    renderGrid();
+  };
+
+  document.addEventListener('DOMContentLoaded', renderGrid);
+  window.addEventListener('load', renderGrid);
+  setTimeout(renderGrid, 0);
+  setTimeout(renderGrid, 300);
+})();
+</script>
+
+</body>
+</html>
